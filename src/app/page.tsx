@@ -1,0 +1,20 @@
+"use client";
+
+import { useGameStore } from "@/store/gameStore";
+import IntroCinematic from "@/components/IntroCinematic";
+import DetectiveOffice from "@/components/DetectiveOffice";
+import GameShell from "@/components/GameShell";
+import AchievementPopup from "@/components/AchievementPopup";
+
+export default function Home() {
+  const screen = useGameStore((s) => s.screen);
+
+  return (
+    <div className="flex flex-1 flex-col">
+      <AchievementPopup />
+      {screen === "intro" && <IntroCinematic />}
+      {screen === "office" && <DetectiveOffice />}
+      {(screen === "mission" || screen === "caseClosed") && <GameShell />}
+    </div>
+  );
+}
