@@ -49,14 +49,10 @@ export const MISSION_1: Mission = {
         "\"What happened? That's where we start.\"",
         "\"Pull the case archive.\"",
       ],
-      instructions: "Find the case that's still open.",
-      starterSql: "-- Write your query below\n",
-      hints: [
-        { text: "Every SQL query that reads data starts with SELECT.", xpPenalty: 5 },
-        { text: "Use * to select all columns: SELECT * FROM crimes;", xpPenalty: 10 },
-        { text: "The exact query is: SELECT * FROM crimes;", xpPenalty: 15 },
-      ],
-      xpReward: 40,
+      instructions: "Open the case archive.",
+      starterSql: "SELECT *\nFROM ...\n",
+      sqlStarter: "SELECT *\nFROM ...",
+      answerSql: "SELECT *\nFROM crimes;",
       successDialogue: [
         "\"The Vantage Gala Heist. Still open — one suspect already flagged.\"",
         "\"Let's find out who was actually there.\"",
@@ -88,13 +84,9 @@ export const MISSION_1: Mission = {
       concept: "SELECT",
       chiefIntro: ["\"Who was there? Pull the guest list.\""],
       instructions: "Pull the guest list.",
-      starterSql: "-- Write your query below\n",
-      hints: [
-        { text: "Every SQL query that reads data starts with SELECT.", xpPenalty: 5 },
-        { text: "Use * to select all columns: SELECT * FROM people;", xpPenalty: 10 },
-        { text: "The exact query is: SELECT * FROM people;", xpPenalty: 15 },
-      ],
-      xpReward: 50,
+      starterSql: "SELECT *\nFROM ...\n",
+      sqlStarter: "SELECT *\nFROM ...",
+      answerSql: "SELECT *\nFROM people;",
       badgeId: "badge-first-query",
       clueId: "clue-guest-list",
       successDialogue: ["\"Ten names. Ten alibis. Somebody's lying.\""],
@@ -124,14 +116,10 @@ export const MISSION_1: Mission = {
       id: "task-where",
       concept: "WHERE",
       chiefIntro: ["\"Who stands out? Security already flagged a few.\""],
-      instructions: "Narrow the list to who stands out.",
-      starterSql: "SELECT * FROM people WHERE ",
-      hints: [
-        { text: "WHERE goes right after the table name in FROM.", xpPenalty: 5 },
-        { text: "The people table has a column called suspicious.", xpPenalty: 10 },
-        { text: "Try: SELECT * FROM people WHERE suspicious = true;", xpPenalty: 15 },
-      ],
-      xpReward: 75,
+      instructions: "Find the suspicious guests.",
+      starterSql: "SELECT *\nFROM people\nWHERE ...\n",
+      sqlStarter: "SELECT *\nFROM people\nWHERE ...",
+      answerSql: "SELECT *\nFROM people\nWHERE suspicious = true;",
       badgeId: "badge-filter-master",
       clueId: "clue-suspect-shortlist",
       successDialogue: ["\"Three names: Kane, Webb, Reilly. All three near the vault.\""],
@@ -167,14 +155,10 @@ export const MISSION_1: Mission = {
       id: "task-orderby",
       concept: "ORDER BY",
       chiefIntro: ["\"Witnesses lie about time. Databases don't. Rebuild the timeline.\""],
-      instructions: "Sort the suspicious guests by when they were last seen.",
-      starterSql: "SELECT * FROM people WHERE suspicious = true ORDER BY ",
-      hints: [
-        { text: "ORDER BY goes at the very end of the query.", xpPenalty: 5 },
-        { text: "Sort using the last_seen_time column: ORDER BY last_seen_time", xpPenalty: 10 },
-        { text: "Try: SELECT * FROM people WHERE suspicious = true ORDER BY last_seen_time DESC;", xpPenalty: 15 },
-      ],
-      xpReward: 100,
+      instructions: "Rebuild the timeline.",
+      starterSql: "SELECT *\nFROM people\nORDER BY ...\n",
+      sqlStarter: "SELECT *\nFROM people\nORDER BY ...",
+      answerSql: "SELECT *\nFROM people\nORDER BY last_seen_time DESC;",
       badgeId: "badge-lead-detective",
       clueId: "clue-security-footage",
       successDialogue: [
@@ -187,7 +171,7 @@ export const MISSION_1: Mission = {
           return { success: false, message: "Use ORDER BY last_seen_time to rebuild the timeline." };
         }
         if (result.rowCount === 0) {
-          return { success: false, message: "No rows came back. Keep the suspicious filter from before." };
+          return { success: false, message: "No rows came back. Check the table and columns." };
         }
         if (!("last_seen_time" in (result.rows[0] ?? {}))) {
           return {

@@ -1,61 +1,47 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
 import { MissionTask } from "@/types";
 import { useGameStore } from "@/store/gameStore";
 import { playSound } from "@/lib/sound";
 
 interface HintEngineProps {
   task: MissionTask;
+  onInsertAnswer?: (sql: string) => void;
 }
 
-export default function HintEngine({ task }: HintEngineProps) {
-  const hintsUsed = useGameStore((s) => s.hintsUsed[task.id] ?? 0);
-  const revealHint = useGameStore((s) => s.revealHint);
+export default function HintEngine({ task, onInsertAnswer }: HintEngineProps) {
+  const answerUsedTaskIds = useGameStore((s) => s.answerUsedTaskIds);
+  const markAnswerUsed = useGameStore((s) => s.markAnswerUsed);
+  const revealed = answerUsedTaskIds.includes(task.id);
 
-  const revealed = task.hints.slice(0, hintsUsed);
-  const hasMore = hintsUsed < task.hints.length;
-
-  function handleReveal() {
+  function handleShowAnswer() {
     playSound("click");
-    revealHint(task.id);
+    markAnswerUsed(task.id);
+    onInsertAnswer?.(task.answerSql);
   }
 
   return (
     <div className="noir-panel rounded-lg p-3">
-      <div className="mb-2 flex items-center justify-between px-1">
-        <h2 className="font-noir text-xs uppercase tracking-widest text-accent">Hint Engine</h2>
-        {hintsUsed > 0 && (
-          <span className="text-[11px] text-foreground/40">{hintsUsed} used</span>
-        )}
-      </div>
+      <h2 className="mb-2 px-1 font-noir text-xs uppercase tracking-widest text-accent">
+        SQL Starter
+      </h2>
+      <pre className="whitespace-pre-wrap rounded-md border border-panel-border bg-black/20 p-2 font-mono text-xs text-accent-soft">
+        {task.sqlStarter}
+      </pre>
 
-      <div className="flex flex-col gap-2 px-1">
-        <AnimatePresence initial={false}>
-          {revealed.map((hint, i) => (
-            <motion.p
-              key={i}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="rounded-md border border-panel-border bg-black/20 px-3 py-2 text-sm text-foreground/70"
-            >
-              💡 {hint.text}
-            </motion.p>
-          ))}
-        </AnimatePresence>
-
-        {hasMore ? (
-          <button
-            onClick={handleReveal}
-            className="self-start rounded border border-accent-soft/40 px-3 py-1.5 text-xs text-accent-soft transition hover:bg-accent-soft/10"
-          >
-            Need a hint? (−{task.hints[hintsUsed].xpPenalty} XP)
-          </button>
-        ) : (
-          <p className="text-xs text-foreground/30">No more hints for this one.</p>
-        )}
-      </div>
+      {revealed ? (
+        <div className="mt-2 rounded-md border border-accent/40 bg-accent/5 p-2">
+          <p className="mb-1 px-0 text-[11px] uppercase tracking-widest text-accent">Answer</p>
+          <pre className="whitespace-pre-wrap font-mono text-xs text-accent-soft">{task.answerSql}</pre>
+        </div>
+      ) : (
+        <button
+          onClick={handleShowAnswer}
+          className="mt-2 self-start rounded border border-accent-soft/40 px-3 py-1.5 text-xs text-accent-soft transition hover:bg-accent-soft/10"
+        >
+          Show Answer
+        </button>
+      )}
     </div>
   );
 }

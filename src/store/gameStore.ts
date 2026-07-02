@@ -12,6 +12,12 @@ export type MissionPhase =
   | "debrief"
   | "complete";
 
+export interface XpBreakdown {
+  base: number;
+  adjustments: { label: string; amount: number }[];
+  total: number;
+}
+
 interface GameState {
   screen: Screen;
   xp: number;
@@ -23,7 +29,9 @@ interface GameState {
   currentMissionId: string;
   currentTaskIndex: number;
   missionPhase: MissionPhase;
-  hintsUsed: Record<string, number>;
+  wrongAttempts: Record<string, number>;
+  answerUsedTaskIds: string[];
+  lastXpBreakdown: XpBreakdown | null;
   lastQueryResult: QueryResult | null;
   sqlHistory: string[];
   soundMuted: boolean;
@@ -41,12 +49,21 @@ interface GameState {
   earnClue: (clueId?: string) => void;
   clearNewClue: () => void;
   popAchievement: () => void;
-  revealHint: (taskId: string) => void;
+  recordWrongAttempt: (taskId: string) => void;
+  markAnswerUsed: (taskId: string) => void;
   setLastQueryResult: (result: QueryResult | null) => void;
   pushSqlHistory: (sql: string) => void;
   toggleSound: () => void;
   setSelectedTable: (name: string | null) => void;
 }
+
+// Simplified, transparent scoring — see missions.ts task copy for the SQL Starter / Show Answer flow.
+const BASE_MISSION_XP = 100;
+const CLEAN_SOLVE_BONUS = 25;
+const ANSWER_USED_PENALTY = 25;
+const WRONG_ATTEMPTS_PENALTY = 10;
+const WRONG_ATTEMPTS_THRESHOLD = 3;
+const MIN_MISSION_XP = 50;
 
 export const XP_PER_LEVEL = 150;
 
@@ -70,7 +87,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   currentMissionId: MISSIONS[0].id,
   currentTaskIndex: 0,
   missionPhase: "briefing",
-  hintsUsed: {},
+  wrongAttempts: {},
+  answerUsedTaskIds: [],
+  lastXpBreakdown: null,
   lastQueryResult: null,
   sqlHistory: [],
   soundMuted: false,
@@ -86,6 +105,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       lastQueryResult: null,
       earnedClueIds: [],
       newlyUnlockedClueId: null,
+      wrongAttempts: {},
+      answerUsedTaskIds: [],
+      lastXpBreakdown: null,
       screen: "mission",
     }),
 
@@ -99,15 +121,29 @@ export const useGameStore = create<GameState>((set, get) => ({
     const task = mission.tasks[get().currentTaskIndex];
     if (!task) return;
 
-    const penalty = (get().hintsUsed[task.id] ?? 0) > 0
-      ? mission.tasks[get().currentTaskIndex].hints
-          .slice(0, get().hintsUsed[task.id] ?? 0)
-          .reduce((sum, h) => sum + h.xpPenalty, 0)
-      : 0;
-    const awarded = Math.max(10, task.xpReward - penalty);
+    const usedAnswer = get().answerUsedTaskIds.includes(task.id);
+    const attempts = get().wrongAttempts[task.id] ?? 0;
 
-    set({ missionPhase: "task-success" });
-    get().addXP(awarded);
+    const adjustments: { label: string; amount: number }[] = [];
+    let xp = BASE_MISSION_XP;
+
+    if (usedAnswer) {
+      adjustments.push({ label: "Answer Used", amount: -ANSWER_USED_PENALTY });
+      xp -= ANSWER_USED_PENALTY;
+    } else {
+      adjustments.push({ label: "Clean Solve Bonus", amount: CLEAN_SOLVE_BONUS });
+      xp += CLEAN_SOLVE_BONUS;
+    }
+
+    if (attempts >= WRONG_ATTEMPTS_THRESHOLD) {
+      adjustments.push({ label: "Wrong Attempts", amount: -WRONG_ATTEMPTS_PENALTY });
+      xp -= WRONG_ATTEMPTS_PENALTY;
+    }
+
+    const total = Math.max(MIN_MISSION_XP, xp);
+
+    set({ missionPhase: "task-success", lastXpBreakdown: { base: BASE_MISSION_XP, adjustments, total } });
+    get().addXP(total);
     if (task.badgeId) get().earnBadge(task.badgeId);
     get().earnClue(task.clueId);
   },
@@ -160,10 +196,15 @@ export const useGameStore = create<GameState>((set, get) => ({
   popAchievement: () =>
     set((state) => ({ achievementQueue: state.achievementQueue.slice(1) })),
 
-  revealHint: (taskId) =>
+  recordWrongAttempt: (taskId) =>
     set((state) => ({
-      hintsUsed: { ...state.hintsUsed, [taskId]: (state.hintsUsed[taskId] ?? 0) + 1 },
+      wrongAttempts: { ...state.wrongAttempts, [taskId]: (state.wrongAttempts[taskId] ?? 0) + 1 },
     })),
+
+  markAnswerUsed: (taskId) => {
+    if (get().answerUsedTaskIds.includes(taskId)) return;
+    set((state) => ({ answerUsedTaskIds: [...state.answerUsedTaskIds, taskId] }));
+  },
 
   setLastQueryResult: (result) => set({ lastQueryResult: result }),
 

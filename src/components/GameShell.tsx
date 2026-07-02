@@ -31,6 +31,8 @@ export default function GameShell() {
   const finishMission = useGameStore((s) => s.finishMission);
   const goToScreen = useGameStore((s) => s.goToScreen);
   const setMissionPhase = useGameStore((s) => s.setMissionPhase);
+  const recordWrongAttempt = useGameStore((s) => s.recordWrongAttempt);
+  const lastXpBreakdown = useGameStore((s) => s.lastXpBreakdown);
 
   const mission = MISSIONS.find((m) => m.id === currentMissionId) ?? MISSIONS[0];
   const task = mission.tasks[currentTaskIndex];
@@ -98,6 +100,7 @@ export default function GameShell() {
       } else {
         playSound("error");
         setValidationMessage(verdict.message ?? "Not quite — try again.");
+        recordWrongAttempt(task.id);
       }
     }
   }
@@ -137,6 +140,18 @@ export default function GameShell() {
           onComplete={() => goToNextTask()}
           continueLabel={currentTaskIndex + 1 >= mission.tasks.length ? "Wrap up the case" : "Next lead"}
         />
+        {lastXpBreakdown && (
+          <div className="noir-panel mt-4 rounded-lg p-3 text-sm">
+            <p className="mb-1 font-noir text-xs uppercase tracking-widest text-accent">Mission XP</p>
+            <p className="text-foreground/70">{lastXpBreakdown.base} Base</p>
+            {lastXpBreakdown.adjustments.map((adj) => (
+              <p key={adj.label} className={adj.amount >= 0 ? "text-accent-soft" : "text-danger"}>
+                {adj.amount >= 0 ? `+${adj.amount}` : adj.amount} {adj.label}
+              </p>
+            ))}
+            <p className="mt-1 font-noir text-accent-soft">= {lastXpBreakdown.total} XP</p>
+          </div>
+        )}
       </CenteredDialogueScreen>
     );
   }
@@ -254,7 +269,7 @@ export default function GameShell() {
             </p>
             <p className="text-sm text-foreground/80">{task.instructions}</p>
           </div>
-          <HintEngine task={task} />
+          <HintEngine task={task} onInsertAnswer={setSqlValue} />
           <InvestigationBoard className="md:col-span-2 xl:col-span-1" />
           <BadgeCase className="md:col-span-2 xl:col-span-1" />
         </div>
