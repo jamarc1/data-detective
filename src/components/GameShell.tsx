@@ -9,6 +9,7 @@ import { playSound } from "@/lib/sound";
 import { pickFillerLine, maybePickReflectionLine } from "@/lib/dialogue";
 import { CLUE_CATALOG } from "@/lib/clues";
 import ChiefDialogue from "./ChiefDialogue";
+import CurrentMissionCard from "./CurrentMissionCard";
 import Sidebar from "./Sidebar";
 import SqlEditor from "./SqlEditor";
 import ResultsGrid from "./ResultsGrid";
@@ -222,6 +223,8 @@ export default function GameShell() {
           label="Investigation Progress"
         />
       </div>
+
+      <CurrentMissionCard task={task} />
 
       <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[200px_1fr] xl:grid-cols-[220px_1fr_300px]">
         <Sidebar onInsertQuery={setSqlValue} />
