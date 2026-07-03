@@ -29,7 +29,7 @@ export default function SqlEditor({ value, onChange, onRun, running, placeholder
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         spellCheck={false}
-        rows={6}
+        rows={5}
         className="w-full flex-1 resize-none rounded-md border border-panel-border bg-black/30 p-3 font-mono text-sm text-accent-soft outline-none focus:border-accent"
         placeholder={placeholder}
       />

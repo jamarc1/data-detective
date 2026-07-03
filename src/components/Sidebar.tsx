@@ -91,13 +91,27 @@ export default function Sidebar({
             >
               <button
                 onClick={() => setOpenTable(isOpen ? null : table.name)}
-                className="flex w-full items-center justify-between px-3 py-2 text-left"
+                className="flex w-full items-start justify-between gap-2 px-3 py-2 text-left"
               >
-                <span className="flex flex-col">
-                  <span className="text-sm text-foreground/90">{table.evidenceLabel}</span>
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-sm uppercase tracking-wide text-foreground/90">
+                    📁 {table.evidenceLabel}
+                  </span>
+                  <span className="text-xs text-foreground/60">{table.description}</span>
                   <span className="font-mono text-[11px] text-foreground/40">Table: {table.name}</span>
+                  <span
+                    className={`text-[11px] ${
+                      relevantTables && !relevantTables.includes(table.name)
+                        ? "text-foreground/40"
+                        : "text-accent-soft"
+                    }`}
+                  >
+                    {relevantTables && !relevantTables.includes(table.name)
+                      ? "Status: Reviewed"
+                      : "Click to inspect."}
+                  </span>
                 </span>
-                <span className="text-xs text-foreground/40">{isOpen ? "▾" : "▸"}</span>
+                <span className="shrink-0 text-xs text-foreground/40">{isOpen ? "▾" : "▸"}</span>
               </button>
 
               <AnimatePresence initial={false}>
@@ -109,8 +123,7 @@ export default function Sidebar({
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <p className="px-3 pb-2 text-xs text-foreground/50">{table.description}</p>
-                    <ul className="px-3 pb-2 font-mono text-xs text-foreground/60">
+                    <ul className="px-3 pb-2 pt-1 font-mono text-xs text-foreground/60">
                       {table.columns.map((col) => (
                         <li key={col.name} className="flex justify-between border-t border-panel-border/60 py-1">
                           <span>{col.name}</span>

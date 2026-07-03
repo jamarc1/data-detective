@@ -4,7 +4,7 @@ export const TABLE_SCHEMAS: TableSchema[] = [
   {
     name: "people",
     evidenceLabel: "Guest List",
-    description: "Everyone who attended the Vantage Gala the night of the theft.",
+    description: "Everyone who attended the gala.",
     columns: [
       { name: "id", type: "INTEGER" },
       { name: "name", type: "VARCHAR" },
@@ -19,7 +19,7 @@ export const TABLE_SCHEMAS: TableSchema[] = [
   {
     name: "crimes",
     evidenceLabel: "Case Archive",
-    description: "The case file archive, including tonight's heist.",
+    description: "Department investigation records.",
     columns: [
       { name: "id", type: "INTEGER" },
       { name: "case_name", type: "VARCHAR" },

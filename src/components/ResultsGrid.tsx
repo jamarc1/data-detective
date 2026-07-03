@@ -20,13 +20,17 @@ export default function ResultsGrid({ result, insight, celebrate = false }: Resu
       }`}
     >
       <div className="mb-2 flex items-center justify-between px-1">
-        <h2 className="font-noir text-xs uppercase tracking-widest text-accent">
-          {celebrate ? "Evidence Retrieved" : "Results"}
-        </h2>
+        <h2 className="font-noir text-xs uppercase tracking-widest text-accent">Results</h2>
         {result && !result.error && (
           <span className="text-[11px] text-foreground/40">{result.rowCount} row(s)</span>
         )}
       </div>
+
+      {celebrate && (
+        <p className="mb-1 px-1 font-noir text-xs uppercase tracking-widest text-accent-soft">
+          Evidence Retrieved
+        </p>
+      )}
 
       {result && !result.error && insight && (
         <p
