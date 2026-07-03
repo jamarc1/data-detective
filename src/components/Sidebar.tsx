@@ -8,10 +8,13 @@ import { playSound } from "@/lib/sound";
 
 interface SidebarProps {
   onInsertQuery: (sql: string) => void;
+  relevantTables?: string[];
+  className?: string;
 }
 
-export default function Sidebar({ onInsertQuery }: SidebarProps) {
-  const [openTable, setOpenTable] = useState<string | null>(TABLE_SCHEMAS[0]?.name ?? null);
+export default function Sidebar({ onInsertQuery, relevantTables, className = "" }: SidebarProps) {
+  const [open, setOpen] = useState(false);
+  const [openTable, setOpenTable] = useState<string | null>(null);
   const selectedTable = useGameStore((s) => s.selectedTable);
   const setSelectedTable = useGameStore((s) => s.setSelectedTable);
 
@@ -21,11 +24,32 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
     onInsertQuery(`SELECT * FROM ${name} LIMIT 20;`);
   }
 
+  const tableCount = TABLE_SCHEMAS.length;
+  const currentLabel = relevantTables && relevantTables.length > 0 ? relevantTables.join(", ") : null;
+
   return (
-    <aside className="noir-panel flex h-full flex-col rounded-lg p-3">
-      <h2 className="mb-2 px-1 font-noir text-xs uppercase tracking-widest text-accent">
-        Database Tables
-      </h2>
+    <aside className={`noir-panel flex h-full flex-col rounded-lg p-3 ${className}`}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="mb-2 flex w-full flex-col items-start gap-0.5 px-1 text-left"
+      >
+        <div className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+          <h2 className="font-noir text-xs uppercase tracking-widest text-accent">
+            Database Reference
+          </h2>
+          <span className="text-[11px] text-foreground/40">{open ? "Hide ▾" : "▸"}</span>
+        </div>
+        {!open && (
+          <>
+            <p className="text-[11px] text-foreground/50">
+              {tableCount} {tableCount === 1 ? "table" : "tables"} available
+              {currentLabel ? ` · Current: ${currentLabel}` : ""}
+            </p>
+            <p className="text-[11px] text-foreground/40">Need table fields? Tap to view.</p>
+          </>
+        )}
+      </button>
+      {open && (
       <div className="flex flex-col gap-2 overflow-y-auto">
         {TABLE_SCHEMAS.map((table) => {
           const isOpen = openTable === table.name;
@@ -76,6 +100,7 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
           );
         })}
       </div>
+      )}
     </aside>
   );
 }

@@ -27,6 +27,8 @@ export interface MissionTask {
   chiefLine: string;
   /** Short label for what evidence this challenge unlocks, e.g. "Case Archive". */
   evidenceAvailable: string;
+  /** Table(s) this task queries against, shown on the Current Lead card so players don't have to open Database Reference to find out. */
+  relevantTables: string[];
   instructions: string;
   starterSql: string;
   /** Progressive hints revealed one at a time behind the "Need a Hint" button. */

@@ -199,36 +199,46 @@ export default function GameShell() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col gap-4 bg-[#05070d] p-4 sm:p-6">
-      <header className="noir-panel flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-noir text-xs uppercase tracking-widest text-foreground/40">
-            {mission.caseNumber}
-          </p>
-          <h1 className="font-noir text-lg text-accent-soft">{mission.title}</h1>
+    <div className="min-h-screen w-full bg-[#05070d] p-4 sm:p-6">
+      {/*
+        Direct grid children render in the exact order a mobile (single-column)
+        player should see them: Header, Progress, Current Lead, Objective, Editor,
+        Results, Database Reference, Investigation Board, Badges. On md/xl,
+        explicit col-start/row-start placement re-creates the multi-column desktop
+        layout without needing to reorder the DOM.
+      */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[200px_1fr] xl:grid-cols-[220px_1fr_300px]">
+        <header className="noir-panel col-span-full flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-noir text-xs uppercase tracking-widest text-foreground/40">
+              {mission.caseNumber}
+            </p>
+            <h1 className="font-noir text-lg text-accent-soft">{mission.title}</h1>
+          </div>
+          <div className="flex flex-1 items-center gap-4 sm:max-w-md">
+            <XPBar />
+            <SoundToggle />
+          </div>
+        </header>
+
+        <div className="noir-panel col-span-full rounded-lg p-3">
+          <ProgressBar
+            currentStep={
+              currentTaskIndex + (missionPhase === "task-active" || missionPhase === "task-review" ? 0 : 1)
+            }
+            totalSteps={mission.tasks.length}
+            label="Investigation Progress"
+          />
         </div>
-        <div className="flex flex-1 items-center gap-4 sm:max-w-md">
-          <XPBar />
-          <SoundToggle />
+
+        <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} className="col-span-full" />
+
+        <div className="noir-panel col-span-full rounded-lg p-3">
+          <p className="mb-1 font-noir text-xs uppercase tracking-widest text-accent">Objective</p>
+          <p className="text-sm text-foreground/80">{task.instructions}</p>
         </div>
-      </header>
 
-      <div className="noir-panel rounded-lg p-3">
-        <ProgressBar
-          currentStep={
-            currentTaskIndex + (missionPhase === "task-active" || missionPhase === "task-review" ? 0 : 1)
-          }
-          totalSteps={mission.tasks.length}
-          label="Investigation Progress"
-        />
-      </div>
-
-      <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} />
-
-      <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[200px_1fr] xl:grid-cols-[220px_1fr_300px]">
-        <Sidebar onInsertQuery={setSqlValue} />
-
-        <div className="flex min-h-[420px] flex-col gap-4">
+        <div className="flex flex-col gap-4 md:col-start-2 md:row-start-5">
           <SqlEditor value={sqlValue} onChange={setSqlValue} onRun={handleRun} running={running} />
           {validationMessage && (
             <motion.p
@@ -251,6 +261,9 @@ export default function GameShell() {
               {reviewLine}
             </motion.p>
           )}
+        </div>
+
+        <div className="flex flex-col gap-4 md:col-start-2 md:row-start-6">
           <ResultsGrid result={lastQueryResult} insight={resultInsight} />
           {missionPhase === "task-review" && (
             <motion.button
@@ -264,16 +277,14 @@ export default function GameShell() {
           )}
         </div>
 
-        <div className="flex flex-col gap-4 md:col-span-2 md:grid md:grid-cols-2 xl:col-span-1 xl:flex xl:flex-col">
-          <div className="noir-panel rounded-lg p-3">
-            <p className="mb-1 font-noir text-xs uppercase tracking-widest text-accent">
-              Objective
-            </p>
-            <p className="text-sm text-foreground/80">{task.instructions}</p>
-          </div>
-          <InvestigationBoard className="md:col-span-2 xl:col-span-1" />
-          <BadgeCase className="md:col-span-2 xl:col-span-1" />
-        </div>
+        <Sidebar
+          onInsertQuery={setSqlValue}
+          relevantTables={task.relevantTables}
+          className="md:col-start-1 md:row-start-5 md:row-span-2"
+        />
+
+        <InvestigationBoard className="md:col-span-full md:row-start-7 xl:col-span-1 xl:col-start-3 xl:row-start-5" />
+        <BadgeCase className="md:col-span-full md:row-start-8 xl:col-span-1 xl:col-start-3 xl:row-start-6" />
       </div>
     </div>
   );

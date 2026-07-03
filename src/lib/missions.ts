@@ -52,6 +52,7 @@ export const MISSION_1: Mission = {
       detectiveQuestion: "What case are we working?",
       chiefLine: "Three cases are sitting in the archive. One still needs solving.",
       evidenceAvailable: "Case Archive",
+      relevantTables: ["crimes"],
       instructions: "Open the case archive.",
       starterSql: "-- Write your query below\n",
       hints: {
@@ -92,6 +93,7 @@ export const MISSION_1: Mission = {
       detectiveQuestion: "Who attended the gala?",
       chiefLine: "Everybody leaves a trail. Find everyone who was there.",
       evidenceAvailable: "Guest List",
+      relevantTables: ["people"],
       instructions: "Pull the guest list.",
       starterSql: "-- Write your query below\n",
       hints: {
@@ -131,6 +133,7 @@ export const MISSION_1: Mission = {
       detectiveQuestion: "Who deserves a closer look?",
       chiefLine: "Not everyone at the gala matters. Find the ones marked suspicious.",
       evidenceAvailable: "Guest List",
+      relevantTables: ["people"],
       instructions: "Find the suspicious guests.",
       starterSql: "-- Write your query below\n",
       hints: {
@@ -176,6 +179,7 @@ export const MISSION_1: Mission = {
       detectiveQuestion: "Who was seen last?",
       chiefLine: "Witnesses lie about time. Databases don't. Rebuild the timeline.",
       evidenceAvailable: "Guest Timeline",
+      relevantTables: ["people"],
       instructions: "Rebuild the timeline.",
       starterSql: "-- Write your query below\n",
       hints: {
