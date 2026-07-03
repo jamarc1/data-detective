@@ -54,7 +54,7 @@ export const MISSION_1: Mission = {
       evidenceAvailable: "Case Archive",
       relevantTables: ["crimes"],
       instructions: "Open the case archive.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Find the active case in the archive",
       hints: {
         detective: "Start with the case archive.",
         data: "The case archive is stored in the crimes table.",
@@ -95,7 +95,7 @@ export const MISSION_1: Mission = {
       evidenceAvailable: "Guest List",
       relevantTables: ["people"],
       instructions: "Pull the guest list.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Pull the guest list",
       hints: {
         detective: "Start with the guest list.",
         data: "The guest list lives in the people table.",
@@ -135,7 +135,7 @@ export const MISSION_1: Mission = {
       evidenceAvailable: "Guest List",
       relevantTables: ["people"],
       instructions: "Find the suspicious guests.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Find the suspicious guests",
       hints: {
         detective: "Focus only on people marked suspicious.",
         data: "You need a WHERE clause.",
@@ -181,7 +181,7 @@ export const MISSION_1: Mission = {
       evidenceAvailable: "Guest Timeline",
       relevantTables: ["people"],
       instructions: "Rebuild the timeline.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Rebuild the timeline",
       hints: {
         detective: "Sort the guests by when they were last seen.",
         data: "Use ORDER BY with last_seen_time.",

@@ -7,9 +7,10 @@ interface SqlEditorProps {
   onChange: (value: string) => void;
   onRun: () => void;
   running: boolean;
+  placeholder: string;
 }
 
-export default function SqlEditor({ value, onChange, onRun, running }: SqlEditorProps) {
+export default function SqlEditor({ value, onChange, onRun, running, placeholder }: SqlEditorProps) {
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       e.preventDefault();
@@ -30,7 +31,7 @@ export default function SqlEditor({ value, onChange, onRun, running }: SqlEditor
         spellCheck={false}
         rows={6}
         className="w-full flex-1 resize-none rounded-md border border-panel-border bg-black/30 p-3 font-mono text-sm text-accent-soft outline-none focus:border-accent"
-        placeholder="SELECT * FROM people;"
+        placeholder={placeholder}
       />
       <button
         onClick={onRun}

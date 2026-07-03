@@ -36,16 +36,6 @@ export default function CurrentMissionCard({
           <p className="text-sm text-foreground/80">{task.evidenceAvailable}</p>
         </div>
 
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-foreground/40">
-            {task.relevantTables.length > 1 ? "Relevant Tables" : "Relevant Table"}
-          </p>
-          <p className="font-mono text-sm text-accent-soft">{task.relevantTables.join(", ")}</p>
-          <p className="mt-1 text-xs text-foreground/50">
-            Need fields? Open Database Reference below.
-          </p>
-        </div>
-
         <HintEngine task={task} onInsertAnswer={onInsertAnswer} />
       </div>
     </div>

@@ -24,7 +24,7 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
       <div className="min-h-0 flex-1 overflow-auto rounded-md border border-panel-border bg-black/20">
         {!result && (
           <p className="p-4 text-sm text-foreground/40">
-            Run a query to see the evidence here.
+            The archive is waiting. Run a query.
           </p>
         )}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useGameStore } from "@/store/gameStore";
 import { MISSIONS } from "@/lib/missions";
 import { runQuery } from "@/lib/duckdb";
@@ -23,6 +23,7 @@ export default function GameShell() {
   const currentMissionId = useGameStore((s) => s.currentMissionId);
   const currentTaskIndex = useGameStore((s) => s.currentTaskIndex);
   const missionPhase = useGameStore((s) => s.missionPhase);
+  const earnedBadgeIds = useGameStore((s) => s.earnedBadgeIds);
   const lastQueryResult = useGameStore((s) => s.lastQueryResult);
   const setLastQueryResult = useGameStore((s) => s.setLastQueryResult);
   const pushSqlHistory = useGameStore((s) => s.pushSqlHistory);
@@ -51,7 +52,7 @@ export default function GameShell() {
   // moving from task-active into task-review for the same query.
   const taskKey = String(currentTaskIndex);
   const [trackedTaskKey, setTrackedTaskKey] = useState(taskKey);
-  const [sqlValue, setSqlValue] = useState(task?.starterSql ?? "");
+  const [sqlValue, setSqlValue] = useState("");
   const [running, setRunning] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
@@ -67,7 +68,7 @@ export default function GameShell() {
 
   if (taskKey !== trackedTaskKey) {
     setTrackedTaskKey(taskKey);
-    setSqlValue(task?.starterSql ?? "");
+    setSqlValue("");
     setValidationMessage(null);
   }
 
@@ -202,10 +203,11 @@ export default function GameShell() {
     <div className="min-h-screen w-full bg-[#05070d] p-4 sm:p-6">
       {/*
         Direct grid children render in the exact order a mobile (single-column)
-        player should see them: Header, Progress, Current Lead, Objective, Editor,
-        Results, Database Reference, Investigation Board, Badges. On md/xl,
-        explicit col-start/row-start placement re-creates the multi-column desktop
-        layout without needing to reorder the DOM.
+        player should see them: Header, Progress, Current Lead, Editor, Results,
+        Database Reference, Investigation Board, Badges. On md/xl, explicit
+        col-start/row-start placement re-creates the multi-column desktop
+        layout without needing to reorder the DOM. Current Lead already covers
+        the objective, so there's no separate Objective card to duplicate it.
       */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[200px_1fr] xl:grid-cols-[220px_1fr_300px]">
         <header className="noir-panel col-span-full flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -227,19 +229,20 @@ export default function GameShell() {
               currentTaskIndex + (missionPhase === "task-active" || missionPhase === "task-review" ? 0 : 1)
             }
             totalSteps={mission.tasks.length}
-            label="Investigation Progress"
+            label="Leads Solved"
           />
         </div>
 
         <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} className="col-span-full" />
 
-        <div className="noir-panel col-span-full rounded-lg p-3">
-          <p className="mb-1 font-noir text-xs uppercase tracking-widest text-accent">Objective</p>
-          <p className="text-sm text-foreground/80">{task.instructions}</p>
-        </div>
-
-        <div className="flex flex-col gap-4 md:col-start-2 md:row-start-5">
-          <SqlEditor value={sqlValue} onChange={setSqlValue} onRun={handleRun} running={running} />
+        <div className="flex flex-col gap-4 md:col-start-2 md:row-start-4">
+          <SqlEditor
+            value={sqlValue}
+            onChange={setSqlValue}
+            onRun={handleRun}
+            running={running}
+            placeholder={task.sqlPlaceholder}
+          />
           {validationMessage && (
             <motion.p
               initial={{ opacity: 0, y: -6 }}
@@ -263,7 +266,7 @@ export default function GameShell() {
           )}
         </div>
 
-        <div className="flex flex-col gap-4 md:col-start-2 md:row-start-6">
+        <div className="flex flex-col gap-4 md:col-start-2 md:row-start-5">
           <ResultsGrid result={lastQueryResult} insight={resultInsight} />
           {missionPhase === "task-review" && (
             <motion.button
@@ -280,11 +283,39 @@ export default function GameShell() {
         <Sidebar
           onInsertQuery={setSqlValue}
           relevantTables={task.relevantTables}
-          className="md:col-start-1 md:row-start-5 md:row-span-2"
+          className="md:col-start-1 md:row-start-4 md:row-span-2"
         />
 
-        <InvestigationBoard className="md:col-span-full md:row-start-7 xl:col-span-1 xl:col-start-3 xl:row-start-5" />
-        <BadgeCase className="md:col-span-full md:row-start-8 xl:col-span-1 xl:col-start-3 xl:row-start-6" />
+        {/* Investigation Board and Badges stay out of the way until there's
+            something to show — an empty clue board or a wall of locked badge
+            icons reads as clutter, not progress, on a player's first lead. */}
+        <AnimatePresence>
+          {currentTaskIndex > 0 && (
+            <motion.div
+              key="investigation-board"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="md:col-span-full md:row-start-6 xl:col-span-1 xl:col-start-3 xl:row-start-4"
+            >
+              <InvestigationBoard />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {earnedBadgeIds.length > 0 && (
+            <motion.div
+              key="badge-case"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="md:col-span-full md:row-start-7 xl:col-span-1 xl:col-start-3 xl:row-start-5"
+            >
+              <BadgeCase />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

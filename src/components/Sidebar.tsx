@@ -14,7 +14,18 @@ interface SidebarProps {
 
 export default function Sidebar({ onInsertQuery, relevantTables, className = "" }: SidebarProps) {
   const [open, setOpen] = useState(false);
-  const [openTable, setOpenTable] = useState<string | null>(null);
+
+  // The evidence relevant to the current lead should be the one already
+  // expanded — reset back to it whenever the lead (and its relevant tables)
+  // changes, so we don't leave a stale table open from a previous lead.
+  const relevantKey = (relevantTables ?? []).join(",");
+  const [trackedRelevantKey, setTrackedRelevantKey] = useState(relevantKey);
+  const [openTable, setOpenTable] = useState<string | null>(relevantTables?.[0] ?? null);
+  if (relevantKey !== trackedRelevantKey) {
+    setTrackedRelevantKey(relevantKey);
+    setOpenTable(relevantTables?.[0] ?? null);
+  }
+
   const selectedTable = useGameStore((s) => s.selectedTable);
   const setSelectedTable = useGameStore((s) => s.setSelectedTable);
 
@@ -25,7 +36,14 @@ export default function Sidebar({ onInsertQuery, relevantTables, className = "" 
   }
 
   const tableCount = TABLE_SCHEMAS.length;
-  const currentLabel = relevantTables && relevantTables.length > 0 ? relevantTables.join(", ") : null;
+  const currentLabel = relevantTables && relevantTables.length > 0
+    ? relevantTables
+        .map((name) => {
+          const schema = TABLE_SCHEMAS.find((t) => t.name === name);
+          return schema ? `${schema.evidenceLabel} (${name})` : name;
+        })
+        .join(", ")
+    : null;
 
   return (
     <aside className={`noir-panel flex h-full flex-col rounded-lg p-3 ${className}`}>
@@ -65,7 +83,10 @@ export default function Sidebar({ onInsertQuery, relevantTables, className = "" 
                 onClick={() => setOpenTable(isOpen ? null : table.name)}
                 className="flex w-full items-center justify-between px-3 py-2 text-left"
               >
-                <span className="font-mono text-sm text-foreground/90">{table.name}</span>
+                <span className="flex flex-col">
+                  <span className="text-sm text-foreground/90">{table.evidenceLabel}</span>
+                  <span className="font-mono text-[11px] text-foreground/40">Table: {table.name}</span>
+                </span>
                 <span className="text-xs text-foreground/40">{isOpen ? "▾" : "▸"}</span>
               </button>
 

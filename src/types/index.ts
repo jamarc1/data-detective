@@ -30,7 +30,8 @@ export interface MissionTask {
   /** Table(s) this task queries against, shown on the Current Lead card so players don't have to open Database Reference to find out. */
   relevantTables: string[];
   instructions: string;
-  starterSql: string;
+  /** Placeholder text shown in the empty SQL editor for this task, e.g. "-- Find the active case in the archive". */
+  sqlPlaceholder: string;
   /** Progressive hints revealed one at a time behind the "Need a Hint" button. */
   hints: ProgressiveHints;
   badgeId?: string;
@@ -82,6 +83,8 @@ export interface TableSchemaColumn {
 
 export interface TableSchema {
   name: string;
+  /** Business/evidence label shown alongside the technical table name, e.g. "Case Archive". */
+  evidenceLabel: string;
   description: string;
   columns: TableSchemaColumn[];
 }
