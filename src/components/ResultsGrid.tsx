@@ -1,15 +1,24 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { QueryResult } from "@/types";
 
 interface ResultsGridProps {
   result: QueryResult | null;
   insight?: string | null;
+  /** True once the just-run query is the correct answer for the current lead. */
+  celebrate?: boolean;
 }
 
-export default function ResultsGrid({ result, insight }: ResultsGridProps) {
+export default function ResultsGrid({ result, insight, celebrate = false }: ResultsGridProps) {
   return (
-    <div className="noir-panel flex min-h-0 flex-1 flex-col rounded-lg p-3">
+    <motion.div
+      animate={celebrate ? { scale: [1, 1.015, 1] } : undefined}
+      transition={{ duration: 0.5 }}
+      className={`noir-panel flex min-h-0 flex-1 flex-col rounded-lg p-3 ${
+        celebrate ? "ring-1 ring-accent/50 shadow-[0_0_28px_rgba(217,164,65,0.2)]" : ""
+      }`}
+    >
       <div className="mb-2 flex items-center justify-between px-1">
         <h2 className="font-noir text-xs uppercase tracking-widest text-accent">Results</h2>
         {result && !result.error && (
@@ -17,14 +26,26 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
         )}
       </div>
 
+      {celebrate && (
+        <p className="mb-1 px-1 font-noir text-xs uppercase tracking-widest text-accent-soft">
+          Evidence Retrieved
+        </p>
+      )}
+
       {result && !result.error && insight && (
-        <p className="mb-2 px-1 font-noir text-sm italic text-accent-soft/90">{insight}</p>
+        <p
+          className={`mb-2 px-1 font-noir italic text-accent-soft/90 ${
+            celebrate ? "text-base" : "text-sm"
+          }`}
+        >
+          {insight}
+        </p>
       )}
 
       <div className="min-h-0 flex-1 overflow-auto rounded-md border border-panel-border bg-black/20">
         {!result && (
           <p className="p-4 text-sm text-foreground/40">
-            Run a query to see the evidence here.
+            The archive is waiting. Run a query.
           </p>
         )}
 
@@ -67,6 +88,6 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
           </table>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

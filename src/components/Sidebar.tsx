@@ -8,10 +8,34 @@ import { playSound } from "@/lib/sound";
 
 interface SidebarProps {
   onInsertQuery: (sql: string) => void;
+  relevantTables?: string[];
+  /** Table names unlocked so far. Undefined means "no restriction" (show everything). */
+  unlockedTables?: string[];
+  className?: string;
 }
 
-export default function Sidebar({ onInsertQuery }: SidebarProps) {
-  const [openTable, setOpenTable] = useState<string | null>(TABLE_SCHEMAS[0]?.name ?? null);
+export default function Sidebar({
+  onInsertQuery,
+  relevantTables,
+  unlockedTables,
+  className = "",
+}: SidebarProps) {
+  const visibleSchemas = unlockedTables
+    ? TABLE_SCHEMAS.filter((t) => unlockedTables.includes(t.name))
+    : TABLE_SCHEMAS;
+  const [open, setOpen] = useState(false);
+
+  // The evidence relevant to the current lead should be the one already
+  // expanded — reset back to it whenever the lead (and its relevant tables)
+  // changes, so we don't leave a stale table open from a previous lead.
+  const relevantKey = (relevantTables ?? []).join(",");
+  const [trackedRelevantKey, setTrackedRelevantKey] = useState(relevantKey);
+  const [openTable, setOpenTable] = useState<string | null>(relevantTables?.[0] ?? null);
+  if (relevantKey !== trackedRelevantKey) {
+    setTrackedRelevantKey(relevantKey);
+    setOpenTable(relevantTables?.[0] ?? null);
+  }
+
   const selectedTable = useGameStore((s) => s.selectedTable);
   const setSelectedTable = useGameStore((s) => s.setSelectedTable);
 
@@ -21,13 +45,41 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
     onInsertQuery(`SELECT * FROM ${name} LIMIT 20;`);
   }
 
+  const tableCount = visibleSchemas.length;
+  const currentLabel = relevantTables && relevantTables.length > 0
+    ? relevantTables
+        .map((name) => {
+          const schema = TABLE_SCHEMAS.find((t) => t.name === name);
+          return schema ? `${schema.evidenceLabel} (${name})` : name;
+        })
+        .join(", ")
+    : null;
+
   return (
-    <aside className="noir-panel flex h-full flex-col rounded-lg p-3">
-      <h2 className="mb-2 px-1 font-noir text-xs uppercase tracking-widest text-accent">
-        Database Tables
-      </h2>
+    <aside className={`noir-panel flex h-full flex-col rounded-lg p-3 ${className}`}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="mb-2 flex w-full flex-col items-start gap-0.5 px-1 text-left"
+      >
+        <div className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+          <h2 className="font-noir text-xs uppercase tracking-widest text-accent">
+            Available Evidence
+          </h2>
+          <span className="text-[11px] text-foreground/40">{open ? "Hide ▾" : "▸"}</span>
+        </div>
+        {!open && (
+          <>
+            <p className="text-[11px] text-foreground/50">
+              {tableCount} {tableCount === 1 ? "table" : "tables"} available
+              {currentLabel ? ` · Current: ${currentLabel}` : ""}
+            </p>
+            <p className="text-[11px] text-foreground/40">Need table fields? Tap to view.</p>
+          </>
+        )}
+      </button>
+      {open && (
       <div className="flex flex-col gap-2 overflow-y-auto">
-        {TABLE_SCHEMAS.map((table) => {
+        {visibleSchemas.map((table) => {
           const isOpen = openTable === table.name;
           const isSelected = selectedTable === table.name;
           return (
@@ -39,10 +91,27 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
             >
               <button
                 onClick={() => setOpenTable(isOpen ? null : table.name)}
-                className="flex w-full items-center justify-between px-3 py-2 text-left"
+                className="flex w-full items-start justify-between gap-2 px-3 py-2 text-left"
               >
-                <span className="font-mono text-sm text-foreground/90">{table.name}</span>
-                <span className="text-xs text-foreground/40">{isOpen ? "▾" : "▸"}</span>
+                <span className="flex flex-col gap-0.5">
+                  <span className="text-sm uppercase tracking-wide text-foreground/90">
+                    📁 {table.evidenceLabel}
+                  </span>
+                  <span className="text-xs text-foreground/60">{table.description}</span>
+                  <span className="font-mono text-[11px] text-foreground/40">Table: {table.name}</span>
+                  <span
+                    className={`text-[11px] ${
+                      relevantTables && !relevantTables.includes(table.name)
+                        ? "text-foreground/40"
+                        : "text-accent-soft"
+                    }`}
+                  >
+                    {relevantTables && !relevantTables.includes(table.name)
+                      ? "Status: Reviewed"
+                      : "Click to inspect."}
+                  </span>
+                </span>
+                <span className="shrink-0 text-xs text-foreground/40">{isOpen ? "▾" : "▸"}</span>
               </button>
 
               <AnimatePresence initial={false}>
@@ -54,8 +123,7 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <p className="px-3 pb-2 text-xs text-foreground/50">{table.description}</p>
-                    <ul className="px-3 pb-2 font-mono text-xs text-foreground/60">
+                    <ul className="px-3 pb-2 pt-1 font-mono text-xs text-foreground/60">
                       {table.columns.map((col) => (
                         <li key={col.name} className="flex justify-between border-t border-panel-border/60 py-1">
                           <span>{col.name}</span>
@@ -76,6 +144,7 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
           );
         })}
       </div>
+      )}
     </aside>
   );
 }

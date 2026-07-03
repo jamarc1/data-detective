@@ -6,11 +6,16 @@ import HintEngine from "./HintEngine";
 interface CurrentMissionCardProps {
   task: MissionTask;
   onInsertAnswer?: (sql: string) => void;
+  className?: string;
 }
 
-export default function CurrentMissionCard({ task, onInsertAnswer }: CurrentMissionCardProps) {
+export default function CurrentMissionCard({
+  task,
+  onInsertAnswer,
+  className = "",
+}: CurrentMissionCardProps) {
   return (
-    <div className="noir-panel rounded-lg p-3">
+    <div className={`noir-panel rounded-lg p-3 ${className}`}>
       <h2 className="mb-2 px-1 font-noir text-xs uppercase tracking-widest text-accent">
         Current Lead
       </h2>

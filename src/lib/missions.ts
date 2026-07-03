@@ -46,14 +46,18 @@ export const MISSION_1: Mission = {
       id: "task-crimes-select",
       concept: "SELECT",
       chiefIntro: [
-        "\"What happened? That's where we start.\"",
-        "\"Pull the case archive.\"",
+        "\"Three investigations are sitting in the archive.\"",
+        "\"Two have been closed.\"",
+        "\"One is still costing this department time and money.\"",
+        "\"Find it.\"",
       ],
-      detectiveQuestion: "What case are we working?",
-      chiefLine: "Three cases are sitting in the archive. One still needs solving.",
+      detectiveQuestion: "Which investigation is still active?",
+      chiefLine:
+        "Three investigations are sitting in our archive. Two have been closed. One is still costing this department time and money. Find it before we waste another day chasing ghosts.",
       evidenceAvailable: "Case Archive",
+      relevantTables: ["crimes"],
       instructions: "Open the case archive.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Find the active case in the archive",
       hints: {
         detective: "Start with the case archive.",
         data: "The case archive is stored in the crimes table.",
@@ -61,7 +65,8 @@ export const MISSION_1: Mission = {
       },
       successDialogue: [
         "\"The Vantage Gala Heist. Still open — one suspect already flagged.\"",
-        "\"Let's find out who was actually there.\"",
+        "\"Good. Now we know which investigation we're working.\"",
+        "\"Let's see who attended.\"",
       ],
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };
@@ -81,7 +86,7 @@ export const MISSION_1: Mission = {
       },
       resultInsight: (result) => {
         if (result.rowCount === 0) return "The archive's empty. That's not right.";
-        if (result.rowCount === 3) return "Three cases sit in the archive. Only one is still open.";
+        if (result.rowCount === 3) return "Three investigations remain. Only one is still active.";
         return `${result.rowCount} cases pulled so far — the archive holds three.`;
       },
     },
@@ -92,8 +97,9 @@ export const MISSION_1: Mission = {
       detectiveQuestion: "Who attended the gala?",
       chiefLine: "Everybody leaves a trail. Find everyone who was there.",
       evidenceAvailable: "Guest List",
+      relevantTables: ["people"],
       instructions: "Pull the guest list.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Pull the guest list",
       hints: {
         detective: "Start with the guest list.",
         data: "The guest list lives in the people table.",
@@ -131,8 +137,9 @@ export const MISSION_1: Mission = {
       detectiveQuestion: "Who deserves a closer look?",
       chiefLine: "Not everyone at the gala matters. Find the ones marked suspicious.",
       evidenceAvailable: "Guest List",
+      relevantTables: ["people"],
       instructions: "Find the suspicious guests.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Find the suspicious guests",
       hints: {
         detective: "Focus only on people marked suspicious.",
         data: "You need a WHERE clause.",
@@ -176,8 +183,9 @@ export const MISSION_1: Mission = {
       detectiveQuestion: "Who was seen last?",
       chiefLine: "Witnesses lie about time. Databases don't. Rebuild the timeline.",
       evidenceAvailable: "Guest Timeline",
+      relevantTables: ["people"],
       instructions: "Rebuild the timeline.",
-      starterSql: "-- Write your query below\n",
+      sqlPlaceholder: "-- Rebuild the timeline",
       hints: {
         detective: "Sort the guests by when they were last seen.",
         data: "Use ORDER BY with last_seen_time.",
