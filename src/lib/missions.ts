@@ -46,8 +46,10 @@ export const MISSION_1: Mission = {
       id: "task-crimes-select",
       concept: "SELECT",
       chiefIntro: [
-        "\"What happened? That's where we start.\"",
-        "\"Pull the case archive.\"",
+        "\"Three investigations are sitting in the archive.\"",
+        "\"Two have been closed.\"",
+        "\"One is still costing this department time and money.\"",
+        "\"Find it.\"",
       ],
       detectiveQuestion: "What case are we working?",
       chiefLine: "Three cases are sitting in the archive. One still needs solving.",
@@ -62,7 +64,8 @@ export const MISSION_1: Mission = {
       },
       successDialogue: [
         "\"The Vantage Gala Heist. Still open — one suspect already flagged.\"",
-        "\"Let's find out who was actually there.\"",
+        "\"Good. Now we know which investigation we're working.\"",
+        "\"Let's see who attended.\"",
       ],
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };

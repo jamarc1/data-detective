@@ -38,6 +38,13 @@ export default function GameShell() {
   const mission = MISSIONS.find((m) => m.id === currentMissionId) ?? MISSIONS[0];
   const task = mission.tasks[currentTaskIndex];
 
+  // Evidence unlocks progressively: only tables introduced by the current
+  // lead or an earlier one are visible, so the next table stays a mystery
+  // until the player has actually earned it.
+  const unlockedTables = Array.from(
+    new Set(mission.tasks.slice(0, currentTaskIndex + 1).flatMap((t) => t.relevantTables))
+  );
+
   const resultInsight =
     lastQueryResult && !lastQueryResult.error && task?.resultInsight
       ? task.resultInsight(lastQueryResult)
@@ -229,7 +236,8 @@ export default function GameShell() {
               currentTaskIndex + (missionPhase === "task-active" || missionPhase === "task-review" ? 0 : 1)
             }
             totalSteps={mission.tasks.length}
-            label="Leads Solved"
+            label="Case Progress"
+            valueLabel={`Lead ${currentTaskIndex + 1} of ${mission.tasks.length}`}
           />
         </div>
 
@@ -267,7 +275,11 @@ export default function GameShell() {
         </div>
 
         <div className="flex flex-col gap-4 md:col-start-2 md:row-start-5">
-          <ResultsGrid result={lastQueryResult} insight={resultInsight} />
+          <ResultsGrid
+            result={lastQueryResult}
+            insight={resultInsight}
+            celebrate={missionPhase === "task-review"}
+          />
           {missionPhase === "task-review" && (
             <motion.button
               initial={{ opacity: 0, y: 8 }}
@@ -283,6 +295,7 @@ export default function GameShell() {
         <Sidebar
           onInsertQuery={setSqlValue}
           relevantTables={task.relevantTables}
+          unlockedTables={unlockedTables}
           className="md:col-start-1 md:row-start-4 md:row-span-2"
         />
 

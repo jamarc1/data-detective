@@ -9,10 +9,20 @@ import { playSound } from "@/lib/sound";
 interface SidebarProps {
   onInsertQuery: (sql: string) => void;
   relevantTables?: string[];
+  /** Table names unlocked so far. Undefined means "no restriction" (show everything). */
+  unlockedTables?: string[];
   className?: string;
 }
 
-export default function Sidebar({ onInsertQuery, relevantTables, className = "" }: SidebarProps) {
+export default function Sidebar({
+  onInsertQuery,
+  relevantTables,
+  unlockedTables,
+  className = "",
+}: SidebarProps) {
+  const visibleSchemas = unlockedTables
+    ? TABLE_SCHEMAS.filter((t) => unlockedTables.includes(t.name))
+    : TABLE_SCHEMAS;
   const [open, setOpen] = useState(false);
 
   // The evidence relevant to the current lead should be the one already
@@ -35,7 +45,7 @@ export default function Sidebar({ onInsertQuery, relevantTables, className = "" 
     onInsertQuery(`SELECT * FROM ${name} LIMIT 20;`);
   }
 
-  const tableCount = TABLE_SCHEMAS.length;
+  const tableCount = visibleSchemas.length;
   const currentLabel = relevantTables && relevantTables.length > 0
     ? relevantTables
         .map((name) => {
@@ -53,7 +63,7 @@ export default function Sidebar({ onInsertQuery, relevantTables, className = "" 
       >
         <div className="flex w-full flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
           <h2 className="font-noir text-xs uppercase tracking-widest text-accent">
-            Database Reference
+            Available Evidence
           </h2>
           <span className="text-[11px] text-foreground/40">{open ? "Hide ▾" : "▸"}</span>
         </div>
@@ -69,7 +79,7 @@ export default function Sidebar({ onInsertQuery, relevantTables, className = "" 
       </button>
       {open && (
       <div className="flex flex-col gap-2 overflow-y-auto">
-        {TABLE_SCHEMAS.map((table) => {
+        {visibleSchemas.map((table) => {
           const isOpen = openTable === table.name;
           const isSelected = selectedTable === table.name;
           return (
