@@ -1,16 +1,18 @@
 "use client";
 
 import { MissionTask } from "@/types";
+import HintEngine from "./HintEngine";
 
 interface CurrentMissionCardProps {
   task: MissionTask;
+  onInsertAnswer?: (sql: string) => void;
 }
 
-export default function CurrentMissionCard({ task }: CurrentMissionCardProps) {
+export default function CurrentMissionCard({ task, onInsertAnswer }: CurrentMissionCardProps) {
   return (
     <div className="noir-panel rounded-lg p-3">
       <h2 className="mb-2 px-1 font-noir text-xs uppercase tracking-widest text-accent">
-        Current Mission
+        Current Lead
       </h2>
       <div className="flex flex-col gap-2 px-1">
         <div>
@@ -20,22 +22,16 @@ export default function CurrentMissionCard({ task }: CurrentMissionCardProps) {
           <p className="font-noir text-sm text-accent-soft">{task.detectiveQuestion}</p>
         </div>
 
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-foreground/40">Objective</p>
-          <p className="text-sm text-foreground/80">{task.instructions}</p>
-        </div>
+        <p className="text-sm italic text-foreground/70">&ldquo;{task.chiefLine}&rdquo;</p>
 
         <div>
-          <p className="text-[11px] uppercase tracking-widest text-foreground/40">Starter Query</p>
-          <pre className="whitespace-pre-wrap rounded-md border border-panel-border bg-black/20 p-2 font-mono text-xs text-accent-soft">
-            {task.sqlStarter}
-          </pre>
+          <p className="text-[11px] uppercase tracking-widest text-foreground/40">
+            Evidence Available
+          </p>
+          <p className="text-sm text-foreground/80">{task.evidenceAvailable}</p>
         </div>
 
-        <div>
-          <p className="text-[11px] uppercase tracking-widest text-foreground/40">Expected Result</p>
-          <p className="text-sm text-foreground/70">{task.expectedResult}</p>
-        </div>
+        <HintEngine task={task} onInsertAnswer={onInsertAnswer} />
       </div>
     </div>
   );

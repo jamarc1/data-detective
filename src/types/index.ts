@@ -8,20 +8,29 @@ export interface QueryResult {
   raw?: unknown;
 }
 
+export interface ProgressiveHints {
+  /** Tier 1 — a nudge toward the case, no SQL. */
+  detective: string;
+  /** Tier 2 — points at the table/column/clause involved, still no full query. */
+  data: string;
+  /** Tier 3 — the full correct query. */
+  sql: string;
+}
+
 export interface MissionTask {
   id: string;
   concept: "SELECT" | "WHERE" | "ORDER BY";
   chiefIntro: string[];
-  /** The detective question this challenge answers, shown on the Current Mission card. */
+  /** The detective question this challenge answers, shown on the Current Lead card. */
   detectiveQuestion: string;
+  /** Short in-character Marlowe line shown on the Current Lead card. */
+  chiefLine: string;
+  /** Short label for what evidence this challenge unlocks, e.g. "Case Archive". */
+  evidenceAvailable: string;
   instructions: string;
   starterSql: string;
-  /** Small always-visible SQL structure hint, e.g. "SELECT *\nFROM ...". Not the full answer. */
-  sqlStarter: string;
-  /** The full correct query, only shown if the player clicks "Show Answer". */
-  answerSql: string;
-  /** Plain-English preview of what a correct query should return, shown before the player runs anything. */
-  expectedResult: string;
+  /** Progressive hints revealed one at a time behind the "Need a Hint" button. */
+  hints: ProgressiveHints;
   badgeId?: string;
   clueId?: string;
   successDialogue: string[];

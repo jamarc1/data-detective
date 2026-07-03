@@ -13,7 +13,6 @@ import CurrentMissionCard from "./CurrentMissionCard";
 import Sidebar from "./Sidebar";
 import SqlEditor from "./SqlEditor";
 import ResultsGrid from "./ResultsGrid";
-import HintEngine from "./HintEngine";
 import XPBar from "./XPBar";
 import ProgressBar from "./ProgressBar";
 import BadgeCase from "./BadgeCase";
@@ -224,7 +223,7 @@ export default function GameShell() {
         />
       </div>
 
-      <CurrentMissionCard task={task} />
+      <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} />
 
       <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[200px_1fr] xl:grid-cols-[220px_1fr_300px]">
         <Sidebar onInsertQuery={setSqlValue} />
@@ -268,11 +267,10 @@ export default function GameShell() {
         <div className="flex flex-col gap-4 md:col-span-2 md:grid md:grid-cols-2 xl:col-span-1 xl:flex xl:flex-col">
           <div className="noir-panel rounded-lg p-3">
             <p className="mb-1 font-noir text-xs uppercase tracking-widest text-accent">
-              {task.concept} — Objective
+              Objective
             </p>
             <p className="text-sm text-foreground/80">{task.instructions}</p>
           </div>
-          <HintEngine task={task} onInsertAnswer={setSqlValue} />
           <InvestigationBoard className="md:col-span-2 xl:col-span-1" />
           <BadgeCase className="md:col-span-2 xl:col-span-1" />
         </div>

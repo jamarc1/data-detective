@@ -31,6 +31,8 @@ interface GameState {
   missionPhase: MissionPhase;
   wrongAttempts: Record<string, number>;
   answerUsedTaskIds: string[];
+  /** Progressive hint tier revealed per task: 0 = none, 1 = detective, 2 = data, 3 = sql. */
+  hintTier: Record<string, number>;
   lastXpBreakdown: XpBreakdown | null;
   lastQueryResult: QueryResult | null;
   sqlHistory: string[];
@@ -51,13 +53,15 @@ interface GameState {
   popAchievement: () => void;
   recordWrongAttempt: (taskId: string) => void;
   markAnswerUsed: (taskId: string) => void;
+  advanceHint: (taskId: string) => void;
   setLastQueryResult: (result: QueryResult | null) => void;
   pushSqlHistory: (sql: string) => void;
   toggleSound: () => void;
   setSelectedTable: (name: string | null) => void;
 }
 
-// Simplified, transparent scoring — see missions.ts task copy for the SQL Starter / Show Answer flow.
+// Simplified, transparent scoring. "Answer used" is set once a player reaches
+// hint tier 3 (the full SQL query) via advanceHint().
 const BASE_MISSION_XP = 100;
 const CLEAN_SOLVE_BONUS = 25;
 const ANSWER_USED_PENALTY = 25;
@@ -89,6 +93,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   missionPhase: "briefing",
   wrongAttempts: {},
   answerUsedTaskIds: [],
+  hintTier: {},
   lastXpBreakdown: null,
   lastQueryResult: null,
   sqlHistory: [],
@@ -107,6 +112,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       newlyUnlockedClueId: null,
       wrongAttempts: {},
       answerUsedTaskIds: [],
+      hintTier: {},
       lastXpBreakdown: null,
       screen: "mission",
     }),
@@ -204,6 +210,13 @@ export const useGameStore = create<GameState>((set, get) => ({
   markAnswerUsed: (taskId) => {
     if (get().answerUsedTaskIds.includes(taskId)) return;
     set((state) => ({ answerUsedTaskIds: [...state.answerUsedTaskIds, taskId] }));
+  },
+
+  advanceHint: (taskId) => {
+    const next = Math.min(3, (get().hintTier[taskId] ?? 0) + 1);
+    set((state) => ({ hintTier: { ...state.hintTier, [taskId]: next } }));
+    // Reaching the SQL hint (tier 3) is the same as being handed the answer.
+    if (next >= 3) get().markAnswerUsed(taskId);
   },
 
   setLastQueryResult: (result) => set({ lastQueryResult: result }),

@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { MissionTask } from "@/types";
 import { useGameStore } from "@/store/gameStore";
 import { playSound } from "@/lib/sound";
@@ -9,38 +10,60 @@ interface HintEngineProps {
   onInsertAnswer?: (sql: string) => void;
 }
 
-export default function HintEngine({ task, onInsertAnswer }: HintEngineProps) {
-  const answerUsedTaskIds = useGameStore((s) => s.answerUsedTaskIds);
-  const markAnswerUsed = useGameStore((s) => s.markAnswerUsed);
-  const revealed = answerUsedTaskIds.includes(task.id);
+const HINT_LABELS = ["Detective Hint", "Data Hint", "SQL Hint"];
 
-  function handleShowAnswer() {
+export default function HintEngine({ task, onInsertAnswer }: HintEngineProps) {
+  const tier = useGameStore((s) => s.hintTier[task.id] ?? 0);
+  const advanceHint = useGameStore((s) => s.advanceHint);
+
+  const hintText = [task.hints.detective, task.hints.data, task.hints.sql];
+
+  function handleHint() {
     playSound("click");
-    markAnswerUsed(task.id);
-    onInsertAnswer?.(task.answerSql);
+    const next = Math.min(3, tier + 1);
+    advanceHint(task.id);
+    if (next === 3) onInsertAnswer?.(task.hints.sql);
   }
 
   return (
-    <div className="noir-panel rounded-lg p-3">
-      <h2 className="mb-2 px-1 font-noir text-xs uppercase tracking-widest text-accent">
-        SQL Starter
-      </h2>
-      <pre className="whitespace-pre-wrap rounded-md border border-panel-border bg-black/20 p-2 font-mono text-xs text-accent-soft">
-        {task.sqlStarter}
-      </pre>
+    <div>
+      <AnimatePresence initial={false}>
+        {tier > 0 && (
+          <div className="mb-2 flex flex-col gap-2">
+            {Array.from({ length: tier }).map((_, i) => (
+              <motion.div
+                key={HINT_LABELS[i]}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="rounded-md border border-accent/40 bg-accent/5 p-2"
+              >
+                <p className="mb-1 text-[11px] uppercase tracking-widest text-accent">
+                  {HINT_LABELS[i]}
+                </p>
+                {i === 2 ? (
+                  <pre className="whitespace-pre-wrap font-mono text-xs text-accent-soft">
+                    {hintText[i]}
+                  </pre>
+                ) : (
+                  <p className="text-sm italic text-accent-soft">&ldquo;{hintText[i]}&rdquo;</p>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </AnimatePresence>
 
-      {revealed ? (
-        <div className="mt-2 rounded-md border border-accent/40 bg-accent/5 p-2">
-          <p className="mb-1 px-0 text-[11px] uppercase tracking-widest text-accent">Answer</p>
-          <pre className="whitespace-pre-wrap font-mono text-xs text-accent-soft">{task.answerSql}</pre>
-        </div>
-      ) : (
+      {tier < 3 ? (
         <button
-          onClick={handleShowAnswer}
-          className="mt-2 self-start rounded border border-accent-soft/40 px-3 py-1.5 text-xs text-accent-soft transition hover:bg-accent-soft/10"
+          onClick={handleHint}
+          className="self-start rounded border border-accent-soft/40 px-3 py-1.5 text-xs text-accent-soft transition hover:bg-accent-soft/10"
         >
-          Show Answer
+          Need a Hint?
         </button>
+      ) : (
+        <p className="text-xs text-foreground/30">
+          That&apos;s everything Marlowe&apos;s got on this one.
+        </p>
       )}
     </div>
   );
