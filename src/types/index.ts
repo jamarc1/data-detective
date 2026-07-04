@@ -82,4 +82,7 @@ export interface TableSchema {
   name: string;
   description: string;
   columns: TableSchemaColumn[];
+  caseName?: string;
+  tagline?: string;
+  contains?: string[];
 }

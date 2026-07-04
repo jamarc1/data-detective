@@ -17,6 +17,9 @@ export const TABLE_SCHEMAS: TableSchema[] = [
   },
   {
     name: "crimes",
+    caseName: "Case Archive",
+    tagline: "Department investigation records.",
+    contains: ["Case Name", "Status", "Lead Suspect", "Description"],
     description: "The case file archive, including tonight's heist.",
     columns: [
       { name: "id", type: "INTEGER" },

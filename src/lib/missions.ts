@@ -39,7 +39,7 @@ export const MISSION_1: Mission = {
   briefing: [
     "Chief Marlowe slides a case file across the desk without looking up.",
     "\"The Vantage Diamond is gone. Ten guests. One thief. The cameras cut out at 11:40.\"",
-    "\"Every case starts with the file. Pull it up.\"",
+    "\"Every investigation starts with the archive. Open the case file before you chase theories.\"",
   ],
   tasks: [
     {

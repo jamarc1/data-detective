@@ -30,7 +30,7 @@ export default function SqlEditor({ value, onChange, onRun, running }: SqlEditor
         spellCheck={false}
         rows={6}
         className="w-full flex-1 resize-none rounded-md border border-panel-border bg-black/30 p-3 font-mono text-sm text-accent-soft outline-none focus:border-accent"
-        placeholder="SELECT * FROM people;"
+        placeholder="-- Write a SQL query to identify the active investigation."
       />
       <button
         onClick={onRun}
