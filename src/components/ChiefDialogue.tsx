@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useKeyedState } from "@/hooks/useKeyedState";
 import { playSound } from "@/lib/sound";
 
@@ -24,8 +24,14 @@ export default function ChiefDialogue({ lines, onComplete, continueLabel = "Cont
   const [displayed, setDisplayed] = useKeyedState(stepKey, () => "");
   const [typing, setTyping] = useKeyedState(stepKey, () => true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (shouldReduceMotion) {
+      setDisplayed(currentLine);
+      setTyping(false);
+      return;
+    }
     let i = 0;
     intervalRef.current = setInterval(() => {
       i += 1;
@@ -39,7 +45,7 @@ export default function ChiefDialogue({ lines, onComplete, continueLabel = "Cont
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stepKey]);
+  }, [stepKey, shouldReduceMotion]);
 
   function handleAdvance() {
     playSound("click");
@@ -59,8 +65,9 @@ export default function ChiefDialogue({ lines, onComplete, continueLabel = "Cont
   return (
     <div className="flex items-start gap-4">
       <motion.div
+        aria-hidden="true"
         className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-accent bg-[#1c2740] text-2xl sm:h-20 sm:w-20"
-        animate={{ scale: [1, 1.03, 1] }}
+        animate={shouldReduceMotion ? undefined : { scale: [1, 1.03, 1] }}
         transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
       >
         🕵️‍♂️

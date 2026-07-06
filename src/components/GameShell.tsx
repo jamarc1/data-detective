@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useGameStore } from "@/store/gameStore";
 import { getMissionById } from "@/lib/missions";
@@ -46,6 +46,23 @@ export default function GameShell() {
   useEffect(() => {
     warmDb();
   }, []);
+
+  // Move focus to the heading of each newly rendered screen so keyboard and
+  // screen-reader users land on the new context. task-active <-> task-review
+  // swap within the same layout, so focus stays where the player left it.
+  const headingRef = useRef<HTMLElement | null>(null);
+  const setHeadingRef = (el: HTMLElement | null) => {
+    headingRef.current = el;
+  };
+  const prevPhaseRef = useRef(missionPhase);
+  useEffect(() => {
+    const prev = prevPhaseRef.current;
+    prevPhaseRef.current = missionPhase;
+    if (prev === missionPhase) return;
+    const sameLayout = ["task-active", "task-review"];
+    if (sameLayout.includes(prev) && sameLayout.includes(missionPhase)) return;
+    headingRef.current?.focus();
+  }, [missionPhase]);
 
   const resultInsight =
     lastQueryResult && !lastQueryResult.error && task?.resultInsight
@@ -116,7 +133,7 @@ export default function GameShell() {
 
   if (missionPhase === "task-intro") {
     return (
-      <CenteredDialogueScreen caseLabel={mission.caseNumber}>
+      <CenteredDialogueScreen caseLabel={mission.caseNumber} headingRef={setHeadingRef}>
         <ChiefDialogue
           lines={task.chiefIntro}
           onComplete={() => setMissionPhase("task-active")}
@@ -128,7 +145,7 @@ export default function GameShell() {
 
   if (missionPhase === "task-success") {
     return (
-      <CenteredDialogueScreen caseLabel={mission.caseNumber}>
+      <CenteredDialogueScreen caseLabel={mission.caseNumber} headingRef={setHeadingRef}>
         <ChiefDialogue
           lines={[
             successFiller,
@@ -158,7 +175,7 @@ export default function GameShell() {
 
   if (missionPhase === "debrief") {
     return (
-      <CenteredDialogueScreen caseLabel={mission.caseNumber}>
+      <CenteredDialogueScreen caseLabel={mission.caseNumber} headingRef={setHeadingRef}>
         <ChiefDialogue
           lines={mission.debrief}
           onComplete={() => finishMission()}
@@ -174,7 +191,13 @@ export default function GameShell() {
         <p className="font-noir text-xs uppercase tracking-[0.3em] text-accent-soft/60">
           {mission.caseNumber} — Closed
         </p>
-        <h1 className="font-noir text-4xl text-accent-soft sm:text-5xl">Case Closed 💎</h1>
+        <h1
+          ref={setHeadingRef}
+          tabIndex={-1}
+          className="font-noir text-4xl text-accent-soft outline-none sm:text-5xl"
+        >
+          Case Closed 💎
+        </h1>
         <p className="font-noir text-lg text-accent-soft/80">{mission.title}</p>
         <p className="max-w-md text-foreground/60">Warrant recommended.</p>
         <div className="mt-4 w-full max-w-sm">
@@ -205,7 +228,9 @@ export default function GameShell() {
           <p className="font-noir text-xs uppercase tracking-widest text-foreground/40">
             {mission.caseNumber}
           </p>
-          <h1 className="font-noir text-lg text-accent-soft">{mission.title}</h1>
+          <h1 ref={setHeadingRef} tabIndex={-1} className="font-noir text-lg text-accent-soft outline-none">
+            {mission.title}
+          </h1>
         </div>
         <div className="flex flex-1 items-center gap-4 sm:max-w-md">
           <XPBar />
@@ -249,6 +274,7 @@ export default function GameShell() {
           <SqlEditor value={sqlValue} onChange={setSqlValue} onRun={handleRun} running={running} />
           {validationMessage && (
             <motion.p
+              role="alert"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               className="rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-sm text-danger"
@@ -299,9 +325,11 @@ export default function GameShell() {
 function CenteredDialogueScreen({
   children,
   caseLabel,
+  headingRef,
 }: {
   children: React.ReactNode;
   caseLabel: string;
+  headingRef?: (el: HTMLElement | null) => void;
 }) {
   return (
     <div className="film-grain flex min-h-screen w-full items-center justify-center bg-[#05070d] px-4 py-10">
@@ -311,7 +339,11 @@ function CenteredDialogueScreen({
         transition={{ duration: 0.5 }}
         className="w-full max-w-2xl"
       >
-        <p className="mb-3 text-center font-noir text-xs uppercase tracking-[0.3em] text-foreground/40">
+        <p
+          ref={headingRef}
+          tabIndex={-1}
+          className="mb-3 text-center font-noir text-xs uppercase tracking-[0.3em] text-foreground/40 outline-none"
+        >
           {caseLabel}
         </p>
         {children}

@@ -19,7 +19,14 @@ export default function ProgressBar({ currentStep, totalSteps, label }: Progress
           {currentStep}/{totalSteps}
         </span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-black/30">
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+        aria-label={`${label ?? "Case Progress"}: ${currentStep} of ${totalSteps}`}
+        className="h-2 w-full overflow-hidden rounded-full bg-black/30"
+      >
         <motion.div
           className="h-full rounded-full bg-success"
           initial={{ width: 0 }}

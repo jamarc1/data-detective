@@ -20,7 +20,14 @@ export default function XPBar() {
             {current}/{needed} XP
           </span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-black/30">
+        <div
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={percent}
+          aria-label={`Level ${level} progress: ${current} of ${needed} XP`}
+          className="h-2 w-full overflow-hidden rounded-full bg-black/30"
+        >
           <motion.div
             className="h-full rounded-full bg-gradient-to-r from-accent to-accent-soft"
             initial={{ width: 0 }}

@@ -49,6 +49,8 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
             >
               <button
                 onClick={() => setOpenTable(isOpen ? null : table.name)}
+                aria-expanded={isOpen}
+                aria-controls={`schema-${table.name}`}
                 className="flex w-full items-center justify-between px-3 py-2 text-left"
               >
                 <span className="flex flex-col">
@@ -77,6 +79,8 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
               <AnimatePresence initial={false}>
                 {isOpen && (
                   <motion.div
+                    id={`schema-${table.name}`}
+                    role="region"
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}

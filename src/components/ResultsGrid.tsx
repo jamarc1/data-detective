@@ -17,9 +17,11 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
         )}
       </div>
 
-      {result && !result.error && insight && (
-        <p className="mb-2 px-1 font-noir text-sm italic text-accent-soft/90">{insight}</p>
-      )}
+      <div aria-live="polite">
+        {result && !result.error && insight && (
+          <p className="mb-2 px-1 font-noir text-sm italic text-accent-soft/90">{insight}</p>
+        )}
+      </div>
 
       <div className="min-h-0 flex-1 overflow-auto rounded-md border border-panel-border bg-black/20">
         {!result && (
@@ -37,12 +39,13 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
         )}
 
         {result && !result.error && result.rows.length > 0 && (
-          <table className="w-full border-collapse text-left text-sm">
+          <table aria-label="Query results" className="w-full border-collapse text-left text-sm">
             <thead className="sticky top-0 bg-[#131a2b]">
               <tr>
                 {result.columns.map((col) => (
                   <th
                     key={col}
+                    scope="col"
                     className="border-b border-panel-border px-3 py-2 font-mono text-xs uppercase tracking-wide text-accent-soft"
                   >
                     {col}

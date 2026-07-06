@@ -49,6 +49,13 @@ body {
   mix-blend-mode: overlay;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .film-grain::before {
+    animation: none;
+    display: none;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
