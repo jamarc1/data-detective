@@ -17,6 +17,12 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
         )}
       </div>
 
+      {result && !result.error && (
+        <p className="mb-1 px-1 text-[11px] uppercase tracking-widest text-accent-soft">
+          Evidence Retrieved
+        </p>
+      )}
+
       <div aria-live="polite">
         {result && !result.error && insight && (
           <p className="mb-2 px-1 font-noir text-sm italic text-accent-soft/90">{insight}</p>
@@ -25,9 +31,7 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
 
       <div className="min-h-0 flex-1 overflow-auto rounded-md border border-panel-border bg-black/20">
         {!result && (
-          <p className="p-4 text-sm text-foreground/40">
-            Run a query to see the evidence here.
-          </p>
+          <p className="p-4 text-sm text-foreground/40">The archive is waiting. Run a query.</p>
         )}
 
         {result?.error && (

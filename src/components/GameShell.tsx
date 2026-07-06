@@ -251,7 +251,7 @@ export default function GameShell() {
       <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} />
 
       <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[200px_1fr] xl:grid-cols-[220px_1fr_300px]">
-        <Sidebar onInsertQuery={setSqlValue} />
+        <Sidebar />
 
         <div className="flex min-h-[420px] flex-col gap-4">
           {dbStatus === "loading" && (

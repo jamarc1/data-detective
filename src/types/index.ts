@@ -85,4 +85,9 @@ export interface TableSchema {
   caseName?: string;
   tagline?: string;
   contains?: string[];
+  /**
+   * Index of the mission task that reviews this evidence. The card is hidden
+   * until the player reaches that task, and marked "Reviewed" once past it.
+   */
+  taskIndex?: number;
 }

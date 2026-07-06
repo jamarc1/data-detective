@@ -3,6 +3,9 @@ import { TableSchema } from "@/types";
 export const TABLE_SCHEMAS: TableSchema[] = [
   {
     name: "people",
+    caseName: "Guest List",
+    tagline: "Everyone who attended the gala.",
+    taskIndex: 1,
     description: "Everyone who attended the Vantage Gala the night of the theft.",
     columns: [
       { name: "id", type: "INTEGER" },
@@ -19,6 +22,7 @@ export const TABLE_SCHEMAS: TableSchema[] = [
     name: "crimes",
     caseName: "Case Archive",
     tagline: "Department investigation records.",
+    taskIndex: 0,
     contains: ["Case Name", "Status", "Lead Suspect", "Description"],
     description: "The case file archive, including tonight's heist.",
     columns: [

@@ -3,12 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TABLE_SCHEMAS } from "@/lib/seedData";
+import { runQuery } from "@/lib/duckdb";
 import { useGameStore } from "@/store/gameStore";
 import { playSound } from "@/lib/sound";
-
-interface SidebarProps {
-  onInsertQuery: (sql: string) => void;
-}
 
 const fieldListVariants = {
   hidden: {},
@@ -20,15 +17,21 @@ const fieldItemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function Sidebar({ onInsertQuery }: SidebarProps) {
-  const [openTable, setOpenTable] = useState<string | null>(TABLE_SCHEMAS[0]?.name ?? null);
+export default function Sidebar() {
+  const [openTable, setOpenTable] = useState<string | null>(null);
   const selectedTable = useGameStore((s) => s.selectedTable);
   const setSelectedTable = useGameStore((s) => s.setSelectedTable);
+  const setLastQueryResult = useGameStore((s) => s.setLastQueryResult);
+  const currentTaskIndex = useGameStore((s) => s.currentTaskIndex);
 
-  function handlePreview(name: string) {
+  // Previews render evidence into the results grid, but never touch the SQL
+  // editor and never run task validation — reading a case file isn't solving
+  // the lead.
+  async function handlePreview(name: string) {
     playSound("click");
     setSelectedTable(name);
-    onInsertQuery(`SELECT * FROM ${name} LIMIT 20;`);
+    const result = await runQuery(`SELECT * FROM ${name} LIMIT 20;`);
+    setLastQueryResult(result);
   }
 
   return (
@@ -38,6 +41,10 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
       </h2>
       <div className="flex flex-col gap-2 overflow-y-auto">
         {TABLE_SCHEMAS.map((table) => {
+          const gateIndex = table.taskIndex ?? 0;
+          // Evidence stays out of the case files until its lead comes up.
+          if (currentTaskIndex < gateIndex) return null;
+          const isReviewed = currentTaskIndex > gateIndex;
           const isOpen = openTable === table.name;
           const isSelected = selectedTable === table.name;
           return (
@@ -73,7 +80,9 @@ export default function Sidebar({ onInsertQuery }: SidebarProps) {
               </button>
 
               {!isOpen && table.caseName && (
-                <p className="px-3 pb-2 text-[11px] italic text-foreground/30">Tap to inspect.</p>
+                <p className="px-3 pb-2 text-[11px] italic text-foreground/30">
+                  {isReviewed ? "Status: Reviewed" : "Click to inspect."}
+                </p>
               )}
 
               <AnimatePresence initial={false}>

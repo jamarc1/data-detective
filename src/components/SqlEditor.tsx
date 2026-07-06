@@ -28,8 +28,8 @@ export default function SqlEditor({ value, onChange, onRun, running }: SqlEditor
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         spellCheck={false}
-        rows={6}
-        className="w-full flex-1 resize-none rounded-md border border-panel-border bg-black/30 p-3 font-mono text-sm text-accent-soft outline-none focus:border-accent"
+        rows={5}
+        className="w-full resize-none rounded-md border border-panel-border bg-black/30 p-3 font-mono text-sm text-accent-soft outline-none focus:border-accent"
         placeholder="-- Write a SQL query to identify the active investigation."
       />
       <button

@@ -10,11 +10,20 @@ const DUST_MOTES = Array.from({ length: 14 }, (_, i) => i);
 
 export default function DetectiveOffice() {
   const startMission = useGameStore((s) => s.startMission);
+  const goToScreen = useGameStore((s) => s.goToScreen);
+  const currentTaskIndex = useGameStore((s) => s.currentTaskIndex);
+  const missionPhase = useGameStore((s) => s.missionPhase);
   const mission = MISSIONS[0];
 
   function handleComplete() {
     playSound("success");
-    startMission(mission.id);
+    // Resume a saved case in progress instead of restarting it from Lead 1.
+    // A finished case (or a fresh save) starts the mission from the top.
+    if (currentTaskIndex > 0 && missionPhase !== "complete") {
+      goToScreen("mission");
+    } else {
+      startMission(mission.id);
+    }
   }
 
   return (

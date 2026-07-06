@@ -49,8 +49,9 @@ export const MISSION_1: Mission = {
         "\"What happened? That's where we start.\"",
         "\"Pull the case archive.\"",
       ],
-      detectiveQuestion: "What case are we working?",
-      chiefLine: "Three cases are sitting in the archive. One still needs solving.",
+      detectiveQuestion: "Which investigation is still active?",
+      chiefLine:
+        "Three investigations are sitting in our archive. Two have been closed. One is still costing this department time and money. Find it before we waste another day chasing ghosts.",
       evidenceAvailable: "Case Archive",
       instructions: "Open the case archive.",
       starterSql: "-- Write your query below\n",
@@ -81,7 +82,7 @@ export const MISSION_1: Mission = {
       },
       resultInsight: (result) => {
         if (result.rowCount === 0) return "The archive's empty. That's not right.";
-        if (result.rowCount === 3) return "Three cases sit in the archive. Only one is still open.";
+        if (result.rowCount === 3) return "Three investigations remain. Only one is still active.";
         return `${result.rowCount} cases pulled so far — the archive holds three.`;
       },
     },
