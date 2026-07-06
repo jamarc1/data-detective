@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import { Achievement, QueryResult, Screen } from "@/types";
 import { BADGE_CATALOG } from "@/lib/badges";
 import { MISSIONS } from "@/lib/missions";
@@ -69,6 +70,20 @@ const WRONG_ATTEMPTS_PENALTY = 10;
 const WRONG_ATTEMPTS_THRESHOLD = 3;
 const MIN_MISSION_XP = 50;
 
+interface PersistedGameState {
+  xp: number;
+  earnedBadgeIds: string[];
+  earnedClueIds: string[];
+  currentMissionId: string;
+  currentTaskIndex: number;
+  wrongAttempts: Record<string, number>;
+  answerUsedTaskIds: string[];
+  hintTier: Record<string, number>;
+  soundMuted: boolean;
+  screen: Screen;
+  missionPhase: MissionPhase;
+}
+
 export const XP_PER_LEVEL = 150;
 
 export function levelFromXp(xp: number): number {
@@ -80,7 +95,9 @@ export function xpIntoLevel(xp: number): { current: number; needed: number; perc
   return { current, needed: XP_PER_LEVEL, percent: Math.round((current / XP_PER_LEVEL) * 100) };
 }
 
-export const useGameStore = create<GameState>((set, get) => ({
+export const useGameStore = create<GameState>()(
+  persist(
+    (set, get) => ({
   screen: "intro",
   xp: 0,
   earnedBadgeIds: [],
@@ -227,4 +244,40 @@ export const useGameStore = create<GameState>((set, get) => ({
   toggleSound: () => set((state) => ({ soundMuted: !state.soundMuted })),
 
   setSelectedTable: (name) => set({ selectedTable: name }),
-}));
+    }),
+    {
+      name: "data-detective-save-v1",
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state): PersistedGameState => ({
+        xp: state.xp,
+        earnedBadgeIds: state.earnedBadgeIds,
+        earnedClueIds: state.earnedClueIds,
+        currentMissionId: state.currentMissionId,
+        currentTaskIndex: state.currentTaskIndex,
+        wrongAttempts: state.wrongAttempts,
+        answerUsedTaskIds: state.answerUsedTaskIds,
+        hintTier: state.hintTier,
+        soundMuted: state.soundMuted,
+        screen: state.screen,
+        missionPhase: state.missionPhase,
+      }),
+      merge: (persistedState, currentState) => {
+        // No save data at all (first-ever visit) — keep the real defaults
+        // (screen: "intro") instead of falling through to the "office" branch.
+        if (!persistedState) return currentState;
+        const persisted = persistedState as Partial<PersistedGameState>;
+        const screen: Screen =
+          persisted.screen === "intro" && (persisted.xp ?? 0) === 0 ? "intro" : "office";
+        const missionPhase: MissionPhase =
+          persisted.missionPhase === "complete" ? "complete" : "task-intro";
+        return {
+          ...currentState,
+          ...persisted,
+          screen,
+          missionPhase,
+        };
+      },
+    }
+  )
+);
