@@ -4,6 +4,41 @@ import { CREATE_TABLES_SQL, SEED_CRIMES_SQL, SEED_PEOPLE_SQL } from "./seedData"
 
 let dbPromise: Promise<duckdb.AsyncDuckDB> | null = null;
 
+export type DbStatus = "idle" | "loading" | "ready" | "failed";
+
+let dbStatus: DbStatus = "idle";
+const statusListeners = new Set<(status: DbStatus) => void>();
+
+function setDbStatus(status: DbStatus) {
+  dbStatus = status;
+  statusListeners.forEach((listener) => listener(status));
+}
+
+export function getDbStatus(): DbStatus {
+  return dbStatus;
+}
+
+export function onDbStatus(listener: (status: DbStatus) => void): () => void {
+  statusListeners.add(listener);
+  return () => statusListeners.delete(listener);
+}
+
+/**
+ * Kicks off DB initialization eagerly so the WASM download/seed happens
+ * before the player runs their first query. Safe to call repeatedly;
+ * a failed boot resets the promise so Retry can start over.
+ */
+export function warmDb(): void {
+  if (dbStatus === "loading" || dbStatus === "ready") return;
+  setDbStatus("loading");
+  getDb()
+    .then(() => setDbStatus("ready"))
+    .catch(() => {
+      dbPromise = null;
+      setDbStatus("failed");
+    });
+}
+
 async function createDb(): Promise<duckdb.AsyncDuckDB> {
   const bundles = duckdb.getJsDelivrBundles();
   const bundle = await duckdb.selectBundle(bundles);

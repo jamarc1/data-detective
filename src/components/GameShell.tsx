@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useGameStore } from "@/store/gameStore";
 import { MISSIONS } from "@/lib/missions";
-import { runQuery } from "@/lib/duckdb";
+import { runQuery, warmDb } from "@/lib/duckdb";
+import { useDbStatus } from "@/hooks/useDbStatus";
 import { playSound } from "@/lib/sound";
 import { pickFillerLine, maybePickReflectionLine } from "@/lib/dialogue";
 import { CLUE_CATALOG } from "@/lib/clues";
@@ -36,6 +37,14 @@ export default function GameShell() {
 
   const mission = MISSIONS.find((m) => m.id === currentMissionId) ?? MISSIONS[0];
   const task = mission.tasks[currentTaskIndex];
+
+  const dbStatus = useDbStatus();
+
+  // Boot the in-browser database as soon as the mission layout mounts so the
+  // WASM download and seeding happen before the player's first query.
+  useEffect(() => {
+    warmDb();
+  }, []);
 
   const resultInsight =
     lastQueryResult && !lastQueryResult.error && task?.resultInsight
@@ -229,6 +238,23 @@ export default function GameShell() {
         <Sidebar onInsertQuery={setSqlValue} />
 
         <div className="flex min-h-[420px] flex-col gap-4">
+          {dbStatus === "loading" && (
+            <p className="noir-panel rounded-md px-3 py-2 text-sm text-accent-soft/80">
+              <span className="mr-2 inline-block animate-pulse text-accent">●</span>
+              Booting the department database…
+            </p>
+          )}
+          {dbStatus === "failed" && (
+            <p className="noir-panel flex items-center justify-between rounded-md px-3 py-2 text-sm text-danger">
+              The department database is offline.
+              <button
+                onClick={() => warmDb()}
+                className="ml-3 rounded border border-accent-soft/40 px-3 py-1 text-xs text-accent-soft transition hover:bg-accent-soft/10"
+              >
+                Retry ▸
+              </button>
+            </p>
+          )}
           <SqlEditor value={sqlValue} onChange={setSqlValue} onRun={handleRun} running={running} />
           {validationMessage && (
             <motion.p
