@@ -10,9 +10,11 @@ import { useKeyedState } from "@/hooks/useKeyedState";
 import { playSound } from "@/lib/sound";
 import { nextFillerLine, nextReflectionLine } from "@/lib/dialogue";
 import { CLUE_CATALOG } from "@/lib/clues";
+import { TABLE_SCHEMAS } from "@/lib/seedData";
 import ChiefDialogue from "./ChiefDialogue";
 import CurrentMissionCard from "./CurrentMissionCard";
-import Sidebar from "./Sidebar";
+import WitnessFile from "./WitnessFile";
+import ChiefReactionDisplay from "./ChiefReactionDisplay";
 import SqlEditor from "./SqlEditor";
 import ResultsGrid from "./ResultsGrid";
 import XPBar from "./XPBar";
@@ -40,6 +42,12 @@ export default function GameShell() {
   const task = mission.tasks[currentTaskIndex];
 
   const dbStatus = useDbStatus();
+
+  // Get available columns for the current task
+  const availableSchemas = TABLE_SCHEMAS.filter(
+    (schema) => schema.taskIndex !== undefined && schema.taskIndex <= currentTaskIndex
+  );
+  const availableColumns = availableSchemas.flatMap((schema) => schema.columns.map((col) => col.name));
 
   // Boot the in-browser database as soon as the mission layout mounts so the
   // WASM download and seeding happen before the player's first query.
@@ -238,7 +246,7 @@ export default function GameShell() {
         </div>
       </header>
 
-      <div className="noir-panel rounded-lg p-3">
+      <div className="noir-panel rounded-lg p-3 mb-1">
         <ProgressBar
           currentStep={
             currentTaskIndex + (missionPhase === "task-active" || missionPhase === "task-review" ? 0 : 1)
@@ -250,74 +258,68 @@ export default function GameShell() {
 
       <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} />
 
-      <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[200px_1fr] xl:grid-cols-[220px_1fr_300px]">
-        <Sidebar />
-
-        <div className="flex min-h-[420px] flex-col gap-4">
-          {dbStatus === "loading" && (
-            <p className="noir-panel rounded-md px-3 py-2 text-sm text-accent-soft/80">
-              <span className="mr-2 inline-block animate-pulse text-accent">●</span>
-              Booting the department database…
-            </p>
-          )}
-          {dbStatus === "failed" && (
-            <p className="noir-panel flex items-center justify-between rounded-md px-3 py-2 text-sm text-danger">
-              The department database is offline.
-              <button
-                onClick={() => warmDb()}
-                className="ml-3 rounded border border-accent-soft/40 px-3 py-1 text-xs text-accent-soft transition hover:bg-accent-soft/10"
-              >
-                Retry ▸
-              </button>
-            </p>
-          )}
-          <SqlEditor value={sqlValue} onChange={setSqlValue} onRun={handleRun} running={running} />
-          {validationMessage && (
-            <motion.p
-              role="alert"
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-sm text-danger"
+      <div className="flex flex-col gap-4">
+        {dbStatus === "loading" && (
+          <p className="noir-panel rounded-md px-3 py-2 text-sm text-accent-soft/80">
+            <span className="mr-2 inline-block animate-pulse text-accent">●</span>
+            Booting the department database…
+          </p>
+        )}
+        {dbStatus === "failed" && (
+          <p className="noir-panel flex items-center justify-between rounded-md px-3 py-2 text-sm text-danger">
+            The department database is offline.
+            <button
+              onClick={() => warmDb()}
+              className="ml-3 rounded border border-accent-soft/40 px-3 py-1 text-xs text-accent-soft transition hover:bg-accent-soft/10"
             >
-              {validationMessage}
-            </motion.p>
-          )}
-          {missionPhase === "task-review" && reviewLine && (
-            <motion.p
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-md border border-accent/40 bg-accent/5 px-3 py-2 text-sm text-accent-soft"
-            >
-              <span className="mr-1 font-noir text-xs uppercase tracking-widest text-accent">
-                Chief Marlowe:
-              </span>
-              {reviewLine}
-            </motion.p>
-          )}
-          <ResultsGrid result={lastQueryResult} insight={resultInsight} />
-          {missionPhase === "task-review" && (
-            <motion.button
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              onClick={handleContinueInvestigation}
-              className="self-start rounded-md border-2 border-accent bg-accent/10 px-6 py-3 font-noir text-accent-soft transition hover:bg-accent/20"
-            >
-              Continue Investigation ▸
-            </motion.button>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-4 md:col-span-2 md:grid md:grid-cols-2 xl:col-span-1 xl:flex xl:flex-col">
-          <div className="noir-panel rounded-lg p-3">
-            <p className="mb-1 font-noir text-xs uppercase tracking-widest text-accent">
-              Objective
-            </p>
-            <p className="text-sm text-foreground/80">{task.instructions}</p>
-          </div>
-          <InvestigationBoard className="md:col-span-2 xl:col-span-1" />
-          <BadgeCase className="md:col-span-2 xl:col-span-1" />
-        </div>
+              Retry ▸
+            </button>
+          </p>
+        )}
+        <SqlEditor value={sqlValue} onChange={setSqlValue} onRun={handleRun} running={running} columns={availableColumns} />
+        {validationMessage && (
+          <motion.p
+            role="alert"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-sm text-danger"
+          >
+            {validationMessage}
+          </motion.p>
+        )}
+        {missionPhase === "task-review" && reviewLine && (
+          <motion.p
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-md border border-accent/40 bg-accent/5 px-3 py-2 text-sm text-accent-soft"
+          >
+            <span className="mr-1 font-noir text-xs uppercase tracking-widest text-accent">
+              Chief Marlowe:
+            </span>
+            {reviewLine}
+          </motion.p>
+        )}
+        <ResultsGrid result={lastQueryResult} insight={resultInsight} />
+        {missionPhase === "task-review" && task?.chiefReaction && (
+          <ChiefReactionDisplay reactions={task.chiefReaction} />
+        )}
+        {missionPhase === "task-review" && (
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={handleContinueInvestigation}
+            className="self-start rounded-md border-2 border-accent bg-accent/10 px-6 py-3 font-noir text-accent-soft transition hover:bg-accent/20"
+          >
+            Continue Investigation ▸
+          </motion.button>
+        )}
       </div>
+
+      <WitnessFile />
+
+      <InvestigationBoard />
+
+      <BadgeCase />
     </div>
   );
 }

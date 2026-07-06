@@ -13,12 +13,12 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
       <div className="mb-2 flex items-center justify-between px-1">
         <h2 className="font-noir text-xs uppercase tracking-widest text-accent">Results</h2>
         {result && !result.error && (
-          <span className="text-[11px] text-foreground/40">{result.rowCount} row(s)</span>
+          <span className="font-mono text-[11px] text-foreground/40">{result.rowCount} row(s)</span>
         )}
       </div>
 
       {result && !result.error && (
-        <p className="mb-1 px-1 text-[11px] uppercase tracking-widest text-accent-soft">
+        <p className="mb-2 px-1 font-noir text-[11px] uppercase tracking-widest text-accent-soft">
           Evidence Retrieved
         </p>
       )}
@@ -58,18 +58,35 @@ export default function ResultsGrid({ result, insight }: ResultsGridProps) {
               </tr>
             </thead>
             <tbody>
-              {result.rows.map((row, i) => (
-                <tr key={i} className="odd:bg-white/[0.02] hover:bg-accent/5">
-                  {result.columns.map((col) => {
-                    const cell = row[col];
-                    return (
-                      <td key={col} className="border-b border-panel-border/60 px-3 py-2 font-mono text-foreground/80">
-                        {cell === null || cell === undefined ? "" : String(cell)}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+              {result.rows.map((row, i) => {
+                const isFlagged = row.suspicious === true || row.suspicious === 1;
+                return (
+                  <tr
+                    key={i}
+                    className={`hover:bg-accent/5 ${
+                      isFlagged
+                        ? "bg-red-900/20 border-l-2 border-red-600"
+                        : "odd:bg-white/[0.02]"
+                    }`}
+                  >
+                    {result.columns.map((col) => {
+                      const cell = row[col];
+                      return (
+                        <td
+                          key={col}
+                          className={`border-b px-3 py-2 font-mono text-foreground/80 ${
+                            isFlagged
+                              ? "border-red-600/40 text-red-200"
+                              : "border-panel-border/60"
+                          }`}
+                        >
+                          {cell === null || cell === undefined ? "" : String(cell)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

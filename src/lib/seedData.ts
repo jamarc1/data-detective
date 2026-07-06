@@ -1,6 +1,12 @@
 import { TableSchema } from "@/types";
 
-export const TABLE_SCHEMAS: TableSchema[] = [
+interface ColumnWithNarrative {
+  name: string;
+  type: string;
+  narrative?: string;
+}
+
+export const TABLE_SCHEMAS: (TableSchema & { columns: ColumnWithNarrative[] })[] = [
   {
     name: "people",
     caseName: "Guest List",
@@ -8,14 +14,14 @@ export const TABLE_SCHEMAS: TableSchema[] = [
     taskIndex: 1,
     description: "Everyone who attended the Vantage Gala the night of the theft.",
     columns: [
-      { name: "id", type: "INTEGER" },
-      { name: "name", type: "VARCHAR" },
-      { name: "age", type: "INTEGER" },
-      { name: "occupation", type: "VARCHAR" },
-      { name: "alibi", type: "VARCHAR" },
-      { name: "last_seen_location", type: "VARCHAR" },
-      { name: "last_seen_time", type: "VARCHAR" },
-      { name: "suspicious", type: "BOOLEAN" },
+      { name: "id", type: "INTEGER", narrative: "Unique identifier for each guest" },
+      { name: "name", type: "VARCHAR", narrative: "Who they are" },
+      { name: "age", type: "INTEGER", narrative: "Their age in years" },
+      { name: "occupation", type: "VARCHAR", narrative: "What they do for a living" },
+      { name: "alibi", type: "VARCHAR", narrative: "What they claim happened" },
+      { name: "last_seen_location", type: "VARCHAR", narrative: "Where they were actually seen" },
+      { name: "last_seen_time", type: "VARCHAR", narrative: "When they were actually seen" },
+      { name: "suspicious", type: "BOOLEAN", narrative: "Flagged by security — true/false" },
     ],
   },
   {
@@ -26,13 +32,13 @@ export const TABLE_SCHEMAS: TableSchema[] = [
     contains: ["Case Name", "Status", "Lead Suspect", "Description"],
     description: "The case file archive, including tonight's heist.",
     columns: [
-      { name: "id", type: "INTEGER" },
-      { name: "case_name", type: "VARCHAR" },
-      { name: "location", type: "VARCHAR" },
-      { name: "case_date", type: "VARCHAR" },
-      { name: "status", type: "VARCHAR" },
-      { name: "suspect_id", type: "INTEGER" },
-      { name: "description", type: "VARCHAR" },
+      { name: "id", type: "INTEGER", narrative: "Unique case identifier" },
+      { name: "case_name", type: "VARCHAR", narrative: "The name of the investigation" },
+      { name: "location", type: "VARCHAR", narrative: "Where the incident occurred" },
+      { name: "case_date", type: "VARCHAR", narrative: "When the incident was reported" },
+      { name: "status", type: "VARCHAR", narrative: "Current case status — open or closed" },
+      { name: "suspect_id", type: "INTEGER", narrative: "ID of the primary suspect, if any" },
+      { name: "description", type: "VARCHAR", narrative: "Details about what happened" },
     ],
   },
 ];

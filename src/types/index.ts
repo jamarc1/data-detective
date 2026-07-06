@@ -17,6 +17,15 @@ export interface ProgressiveHints {
   sql: string;
 }
 
+export interface ChiefReactionTiers {
+  /** Reaction for clean/efficient solve (no hints, no wrong attempts) */
+  clean?: string;
+  /** Standard reaction for successful query */
+  standard: string;
+  /** Reaction for brute-force solve (used hints or many wrong attempts) */
+  bruteForce?: string;
+}
+
 export interface MissionTask {
   id: string;
   concept: "SELECT" | "WHERE" | "ORDER BY";
@@ -34,6 +43,8 @@ export interface MissionTask {
   badgeId?: string;
   clueId?: string;
   successDialogue: string[];
+  /** Chief's reaction lines after a successful query, tiered by query quality */
+  chiefReaction?: ChiefReactionTiers;
   validate: (sql: string, result: QueryResult) => { success: boolean; message?: string };
   /** A short, in-world observation about what a successful query turned up, shown above the results grid. */
   resultInsight?: (result: QueryResult) => string | null;
@@ -76,6 +87,7 @@ export interface Achievement {
 export interface TableSchemaColumn {
   name: string;
   type: string;
+  narrative?: string;
 }
 
 export interface TableSchema {

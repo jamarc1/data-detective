@@ -54,7 +54,7 @@ export const MISSION_1: Mission = {
         "Three investigations are sitting in our archive. Two have been closed. One is still costing this department time and money. Find it before we waste another day chasing ghosts.",
       evidenceAvailable: "Case Archive",
       instructions: "Open the case archive.",
-      starterSql: "-- Write your query below\n",
+      starterSql: "",
       hints: {
         detective: "Start with the case archive.",
         data: "The case archive is stored in the crimes table.",
@@ -64,6 +64,11 @@ export const MISSION_1: Mission = {
         "\"The Vantage Gala Heist. Still open — one suspect already flagged.\"",
         "\"Let's find out who was actually there.\"",
       ],
+      chiefReaction: {
+        clean: "Straight to the point. I like it.",
+        standard: "That's all of them. Good work.",
+        bruteForce: "You got there eventually.",
+      },
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };
         if (!sqlHas(sql, /select/i)) {
@@ -94,7 +99,7 @@ export const MISSION_1: Mission = {
       chiefLine: "Everybody leaves a trail. Find everyone who was there.",
       evidenceAvailable: "Guest List",
       instructions: "Pull the guest list.",
-      starterSql: "-- Write your query below\n",
+      starterSql: "",
       hints: {
         detective: "Start with the guest list.",
         data: "The guest list lives in the people table.",
@@ -103,6 +108,11 @@ export const MISSION_1: Mission = {
       badgeId: "badge-first-query",
       clueId: "clue-guest-list",
       successDialogue: ["\"Ten names. Ten alibis. Somebody's lying.\""],
+      chiefReaction: {
+        clean: "Clean query. Every guest accounted for.",
+        standard: "That's the full guest list.",
+        bruteForce: "There's all ten of them.",
+      },
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };
         if (!sqlHas(sql, /select/i)) {
@@ -133,7 +143,7 @@ export const MISSION_1: Mission = {
       chiefLine: "Not everyone at the gala matters. Find the ones marked suspicious.",
       evidenceAvailable: "Guest List",
       instructions: "Find the suspicious guests.",
-      starterSql: "-- Write your query below\n",
+      starterSql: "",
       hints: {
         detective: "Focus only on people marked suspicious.",
         data: "You need a WHERE clause.",
@@ -142,6 +152,11 @@ export const MISSION_1: Mission = {
       badgeId: "badge-filter-master",
       clueId: "clue-suspect-shortlist",
       successDialogue: ["\"Three names: Kane, Webb, Reilly. All three near the vault.\""],
+      chiefReaction: {
+        clean: "Efficient. You isolated exactly the right three.",
+        standard: "Security's instincts were right. These three stand out.",
+        bruteForce: "Eventually got the suspicious ones filtered out.",
+      },
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };
         if (!sqlHas(sql, /where/i)) {
@@ -178,7 +193,7 @@ export const MISSION_1: Mission = {
       chiefLine: "Witnesses lie about time. Databases don't. Rebuild the timeline.",
       evidenceAvailable: "Guest Timeline",
       instructions: "Rebuild the timeline.",
-      starterSql: "-- Write your query below\n",
+      starterSql: "",
       hints: {
         detective: "Sort the guests by when they were last seen.",
         data: "Use ORDER BY with last_seen_time.",
@@ -190,6 +205,11 @@ export const MISSION_1: Mission = {
         "\"Kane. Last one still in the building.\"",
         "\"He told the front desk he was in the garden all night. The data puts him in the vault room at 11:45.\"",
       ],
+      chiefReaction: {
+        clean: "Timeline's crystal clear. Kane was the last one in that building.",
+        standard: "There it is. Kane's alibi doesn't match the timeline.",
+        bruteForce: "You got the timeline sorted. Kane's lying.",
+      },
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };
         if (!sqlHas(sql, /order\s+by\s+last_seen_time/i)) {

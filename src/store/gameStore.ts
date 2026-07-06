@@ -95,6 +95,13 @@ export function xpIntoLevel(xp: number): { current: number; needed: number; perc
   return { current, needed: XP_PER_LEVEL, percent: Math.round((current / XP_PER_LEVEL) * 100) };
 }
 
+export function getLevelTitle(level: number): string {
+  if (level <= 3) return "Rookie Detective";
+  if (level <= 6) return "Detective";
+  if (level <= 9) return "Senior Detective";
+  return "Chief Inspector";
+}
+
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({

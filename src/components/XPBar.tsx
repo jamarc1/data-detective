@@ -1,12 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useGameStore, levelFromXp, xpIntoLevel } from "@/store/gameStore";
+import { useGameStore, levelFromXp, xpIntoLevel, getLevelTitle } from "@/store/gameStore";
 
 export default function XPBar() {
   const xp = useGameStore((s) => s.xp);
   const level = levelFromXp(xp);
   const { current, needed, percent } = xpIntoLevel(xp);
+  const levelTitle = getLevelTitle(level);
 
   return (
     <div className="flex items-center gap-3">
@@ -14,11 +15,12 @@ export default function XPBar() {
         {level}
       </div>
       <div className="flex-1">
-        <div className="mb-1 flex justify-between text-[11px] text-foreground/50">
-          <span>Level {level}</span>
-          <span>
-            {current}/{needed} XP
+        <div className="mb-1 flex text-[11px] text-foreground/50">
+          <span className="font-noir text-accent-soft">
+            {current} / {needed} XP
           </span>
+          <span className="mx-1.5 text-foreground/40">·</span>
+          <span>{levelTitle}</span>
         </div>
         <div
           role="progressbar"

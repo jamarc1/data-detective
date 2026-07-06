@@ -14,9 +14,9 @@ export default function CurrentMissionCard({ task, onInsertAnswer }: CurrentMiss
       <h2 className="mb-2 px-1 font-noir text-xs uppercase tracking-widest text-accent">
         Current Lead
       </h2>
-      <div className="flex flex-col gap-2 px-1">
+      <div className="flex flex-col gap-3 px-1">
         <div>
-          <p className="text-[11px] uppercase tracking-widest text-foreground/40">
+          <p className="mb-1 font-mono text-[11px] uppercase tracking-widest text-foreground/40">
             Detective Question
           </p>
           <p className="font-noir text-sm text-accent-soft">{task.detectiveQuestion}</p>
@@ -25,7 +25,7 @@ export default function CurrentMissionCard({ task, onInsertAnswer }: CurrentMiss
         <p className="text-sm italic text-foreground/70">&ldquo;{task.chiefLine}&rdquo;</p>
 
         <div>
-          <p className="text-[11px] uppercase tracking-widest text-foreground/40">
+          <p className="mb-1 font-mono text-[11px] uppercase tracking-widest text-foreground/40">
             Evidence Available
           </p>
           <p className="text-sm text-foreground/80">{task.evidenceAvailable}</p>
