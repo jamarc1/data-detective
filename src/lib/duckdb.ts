@@ -46,6 +46,15 @@ export async function runQuery(sql: string): Promise<QueryResult> {
     return { columns: [], rows: [], rowCount: 0, error: "Type a query before running it." };
   }
 
+  if (!/^(select|with|describe|show|explain|summarize)\b/i.test(trimmed)) {
+    return {
+      columns: [],
+      rows: [],
+      rowCount: 0,
+      error: "Detectives read the evidence — they don't tamper with it. Stick to SELECT.",
+    };
+  }
+
   try {
     const db = await getDb();
     const conn = await db.connect();
