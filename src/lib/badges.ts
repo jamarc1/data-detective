@@ -25,4 +25,28 @@ export const BADGE_CATALOG: Record<string, Badge> = {
     description: "Solved the Vantage Gala Heist from start to finish.",
     icon: "💎",
   },
+  "badge-cross-reference": {
+    id: "badge-cross-reference",
+    name: "Cross Reference",
+    description: "Cross-referenced the timeline with WHERE.",
+    icon: "📋",
+  },
+  "badge-alibi-breaker": {
+    id: "badge-alibi-breaker",
+    name: "Alibi Breaker",
+    description: "Broke an alibi by joining timeline logs.",
+    icon: "🔗",
+  },
+  "badge-set-list-solved": {
+    id: "badge-set-list-solved",
+    name: "The Last Set",
+    description: "Identified the truth behind Kai Rivera's disappearance.",
+    icon: "🎭",
+  },
+  "badge-case-closed-2": {
+    id: "badge-case-closed-2",
+    name: "Case Closed: The Last Set",
+    description: "Solved the mystery of Kai Rivera's missing 37 minutes.",
+    icon: "⏱️",
+  },
 };

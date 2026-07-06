@@ -28,7 +28,7 @@ export interface ChiefReactionTiers {
 
 export interface MissionTask {
   id: string;
-  concept: "SELECT" | "WHERE" | "ORDER BY";
+  concept: "SELECT" | "WHERE" | "ORDER BY" | "JOIN";
   chiefIntro: string[];
   /** The detective question this challenge answers, shown on the Current Lead card. */
   detectiveQuestion: string;
@@ -54,6 +54,7 @@ export interface Mission {
   id: string;
   title: string;
   caseNumber: string;
+  difficulty?: "beginner" | "intermediate" | "advanced";
   briefing: string[];
   tasks: MissionTask[];
   debrief: string[];

@@ -1,6 +1,14 @@
 import * as duckdb from "@duckdb/duckdb-wasm";
 import { QueryResult } from "@/types";
-import { CREATE_TABLES_SQL, SEED_CRIMES_SQL, SEED_PEOPLE_SQL } from "./seedData";
+import {
+  CREATE_TABLES_SQL,
+  CREATE_TABLES_CASE2_SQL,
+  SEED_PEOPLE_SQL,
+  SEED_CRIMES_SQL,
+  SEED_GUEST_SCANS_SQL,
+  SEED_STAFF_SHIFTS_SQL,
+  SEED_RIDESHARE_PICKUPS_SQL,
+} from "./seedData";
 
 let dbPromise: Promise<duckdb.AsyncDuckDB> | null = null;
 
@@ -58,6 +66,10 @@ async function createDb(): Promise<duckdb.AsyncDuckDB> {
   await conn.query(CREATE_TABLES_SQL);
   await conn.query(SEED_PEOPLE_SQL);
   await conn.query(SEED_CRIMES_SQL);
+  await conn.query(CREATE_TABLES_CASE2_SQL);
+  await conn.query(SEED_GUEST_SCANS_SQL);
+  await conn.query(SEED_STAFF_SHIFTS_SQL);
+  await conn.query(SEED_RIDESHARE_PICKUPS_SQL);
   await conn.close();
 
   return db;

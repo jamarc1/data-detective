@@ -8,6 +8,46 @@ interface ColumnWithNarrative {
 
 export const TABLE_SCHEMAS: (TableSchema & { columns: ColumnWithNarrative[] })[] = [
   {
+    name: "guest_scans",
+    caseName: "Guest Scans",
+    tagline: "Ticket scanner logs — everyone who badged into The Hollow.",
+    taskIndex: 0,
+    description: "Ticket scanner logs — everyone who badged into The Hollow tonight.",
+    columns: [
+      { name: "id", type: "INTEGER", narrative: "Unique identifier for each scan" },
+      { name: "guest_name", type: "VARCHAR", narrative: "Who was scanned" },
+      { name: "scan_time", type: "VARCHAR", narrative: "When they badged in" },
+      { name: "role", type: "VARCHAR", narrative: "Staff, guest, or artist" },
+    ],
+  },
+  {
+    name: "staff_shifts",
+    caseName: "Staff Shifts",
+    tagline: "Who was scheduled to work, and what they claim happened.",
+    taskIndex: 1,
+    description: "Who was scheduled to work, and what they claim happened during their shift.",
+    columns: [
+      { name: "id", type: "INTEGER", narrative: "Unique identifier for each shift" },
+      { name: "staff_name", type: "VARCHAR", narrative: "Who was working" },
+      { name: "shift_start", type: "VARCHAR", narrative: "When they clocked in" },
+      { name: "shift_end", type: "VARCHAR", narrative: "When they clocked out" },
+      { name: "statement", type: "VARCHAR", narrative: "What they claim happened" },
+    ],
+  },
+  {
+    name: "rideshare_pickups",
+    caseName: "Rideshare Pickups",
+    tagline: "Pickup records from the rideshare app used outside the venue.",
+    taskIndex: 1,
+    description: "Pickup records from the rideshare app used outside the venue.",
+    columns: [
+      { name: "id", type: "INTEGER", narrative: "Unique identifier for each pickup" },
+      { name: "passenger_name", type: "VARCHAR", narrative: "Who was picked up" },
+      { name: "pickup_time", type: "VARCHAR", narrative: "When the pickup occurred" },
+      { name: "booking_ref", type: "VARCHAR", narrative: "Booking reference number" },
+    ],
+  },
+  {
     name: "people",
     caseName: "Guest List",
     tagline: "Everyone who attended the gala.",
@@ -42,6 +82,57 @@ export const TABLE_SCHEMAS: (TableSchema & { columns: ColumnWithNarrative[] })[]
     ],
   },
 ];
+
+export const CREATE_TABLES_CASE2_SQL = `
+CREATE TABLE guest_scans (
+  id INTEGER,
+  guest_name VARCHAR,
+  scan_time VARCHAR,
+  role VARCHAR
+);
+
+CREATE TABLE staff_shifts (
+  id INTEGER,
+  staff_name VARCHAR,
+  shift_start VARCHAR,
+  shift_end VARCHAR,
+  statement VARCHAR
+);
+
+CREATE TABLE rideshare_pickups (
+  id INTEGER,
+  passenger_name VARCHAR,
+  pickup_time VARCHAR,
+  booking_ref VARCHAR
+);
+`;
+
+export const SEED_GUEST_SCANS_SQL = `
+INSERT INTO guest_scans VALUES
+  (1, 'Kai Rivera', '21:38:00', 'artist'),
+  (2, 'Marisol Diaz', '21:45:00', 'staff'),
+  (3, 'Owen Pratt', '21:50:00', 'staff'),
+  (4, 'Kai Rivera', '21:40:00', 'artist'),
+  (5, 'Theo Banks', '21:52:00', 'staff'),
+  (6, 'Nadia Cho', '22:05:00', 'guest'),
+  (7, 'Renn Okafor', '22:10:00', 'staff'),
+  (8, 'Priya Sharma', '22:15:00', 'guest');
+`;
+
+export const SEED_STAFF_SHIFTS_SQL = `
+INSERT INTO staff_shifts VALUES
+  (1, 'Marisol Diaz', '20:00:00', '02:00:00', 'Saw Kai leave in a rideshare at 10:15.'),
+  (2, 'Owen Pratt', '20:00:00', '02:00:00', 'Was at the bar all night, did not see Kai leave.'),
+  (3, 'Theo Banks', '19:00:00', '01:00:00', 'Was on the loading dock, no visibility on the front.'),
+  (4, 'Renn Okafor', '20:30:00', '02:00:00', 'Confirms Marisol was near the front entrance around 10:15.');
+`;
+
+export const SEED_RIDESHARE_PICKUPS_SQL = `
+INSERT INTO rideshare_pickups VALUES
+  (1, 'Kai Rivera', '22:52:00', 'RS-88213'),
+  (2, 'Priya Sharma', '23:40:00', 'RS-88240'),
+  (3, 'Nadia Cho', '23:45:00', 'RS-88241');
+`;
 
 export const CREATE_TABLES_SQL = `
 CREATE TABLE people (
