@@ -26,6 +26,7 @@ interface GameState {
   achievementQueue: Achievement[];
   earnedClueIds: string[];
   newlyUnlockedClueId: string | null;
+  completedMissionIds: string[];
 
   currentMissionId: string;
   currentTaskIndex: number;
@@ -74,6 +75,7 @@ interface PersistedGameState {
   xp: number;
   earnedBadgeIds: string[];
   earnedClueIds: string[];
+  completedMissionIds: string[];
   currentMissionId: string;
   currentTaskIndex: number;
   wrongAttempts: Record<string, number>;
@@ -111,6 +113,7 @@ export const useGameStore = create<GameState>()(
   achievementQueue: [],
   earnedClueIds: [],
   newlyUnlockedClueId: null,
+  completedMissionIds: [],
 
   currentMissionId: MISSIONS[0].id,
   currentTaskIndex: 0,
@@ -191,7 +194,10 @@ export const useGameStore = create<GameState>()(
     const mission = getMissionById(get().currentMissionId);
     get().addXP(mission.xpOnComplete);
     get().earnBadge(mission.badgeOnComplete);
-    set({ missionPhase: "complete" });
+    set((state) => ({
+      missionPhase: "complete",
+      completedMissionIds: [...state.completedMissionIds, mission.id],
+    }));
   },
 
   addXP: (amount) => set((state) => ({ xp: state.xp + amount })),
@@ -257,6 +263,7 @@ export const useGameStore = create<GameState>()(
         xp: state.xp,
         earnedBadgeIds: state.earnedBadgeIds,
         earnedClueIds: state.earnedClueIds,
+        completedMissionIds: state.completedMissionIds,
         currentMissionId: state.currentMissionId,
         currentTaskIndex: state.currentTaskIndex,
         wrongAttempts: state.wrongAttempts,
