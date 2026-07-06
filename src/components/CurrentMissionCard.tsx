@@ -17,9 +17,16 @@ export default function CurrentMissionCard({ task, onInsertAnswer }: CurrentMiss
       <div className="flex flex-col gap-3 px-1">
         <div>
           <p className="mb-1 font-mono text-[11px] uppercase tracking-widest text-foreground/40">
+            Objective
+          </p>
+          <p className="font-noir text-sm text-accent-soft">{task.objective}</p>
+        </div>
+
+        <div>
+          <p className="mb-1 font-mono text-[11px] uppercase tracking-widest text-foreground/40">
             Detective Question
           </p>
-          <p className="font-noir text-sm text-accent-soft">{task.detectiveQuestion}</p>
+          <p className="font-noir text-sm text-foreground/70">{task.detectiveQuestion}</p>
         </div>
 
         <p className="text-sm italic text-foreground/70">&ldquo;{task.chiefLine}&rdquo;</p>

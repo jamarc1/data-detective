@@ -32,6 +32,8 @@ export interface MissionTask {
   chiefIntro: string[];
   /** The detective question this challenge answers, shown on the Current Lead card. */
   detectiveQuestion: string;
+  /** Concrete actionable objective, shown above the SQL editor. Plain English, no SQL syntax. */
+  objective: string;
   /** Short in-character Marlowe line shown on the Current Lead card. */
   chiefLine: string;
   /** Short label for what evidence this challenge unlocks, e.g. "Case Archive". */
