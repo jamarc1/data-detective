@@ -47,7 +47,9 @@ export default function GameShell() {
   const availableSchemas = TABLE_SCHEMAS.filter(
     (schema) => schema.taskIndex !== undefined && schema.taskIndex <= currentTaskIndex
   );
-  const availableColumns = availableSchemas.flatMap((schema) => schema.columns.map((col) => col.name));
+  const availableColumns = Array.from(
+    new Set(availableSchemas.flatMap((schema) => schema.columns.map((col) => col.name)))
+  );
 
   // Boot the in-browser database as soon as the mission layout mounts so the
   // WASM download and seeding happen before the player's first query.
