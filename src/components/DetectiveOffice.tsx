@@ -95,7 +95,9 @@ export default function DetectiveOffice() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {MISSIONS.map((mission, index) => {
             const isCompleted = completedMissionIds.includes(mission.id);
-            const isLocked = !isCompleted && index > 0;
+            const previousMissionCompleted =
+              index === 0 || completedMissionIds.includes(MISSIONS[index - 1].id);
+            const isLocked = !previousMissionCompleted;
             const skillTags = getSkillTags(index);
 
             return (
@@ -162,7 +164,7 @@ export default function DetectiveOffice() {
                   </div>
 
                   {/* Status Message */}
-                  {isLocked && (
+                  {isLocked && index > 0 && (
                     <p className="text-sm text-foreground/60">
                       Complete {MISSIONS[index - 1].title} to unlock.
                     </p>
