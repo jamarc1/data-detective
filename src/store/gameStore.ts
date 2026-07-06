@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { Achievement, QueryResult, Screen } from "@/types";
 import { BADGE_CATALOG } from "@/lib/badges";
-import { MISSIONS } from "@/lib/missions";
+import { getMissionById, MISSIONS } from "@/lib/missions";
 
 export type MissionPhase =
   | "briefing"
@@ -139,8 +139,7 @@ export const useGameStore = create<GameState>()(
   advancePastIntro: () => set({ missionPhase: "task-active" }),
 
   completeCurrentTask: () => {
-    const mission = MISSIONS.find((m) => m.id === get().currentMissionId);
-    if (!mission) return;
+    const mission = getMissionById(get().currentMissionId);
     const task = mission.tasks[get().currentTaskIndex];
     if (!task) return;
 
@@ -172,8 +171,7 @@ export const useGameStore = create<GameState>()(
   },
 
   goToNextTask: () => {
-    const mission = MISSIONS.find((m) => m.id === get().currentMissionId);
-    if (!mission) return;
+    const mission = getMissionById(get().currentMissionId);
     const nextIndex = get().currentTaskIndex + 1;
     if (nextIndex >= mission.tasks.length) {
       set({ missionPhase: "debrief" });
@@ -183,8 +181,7 @@ export const useGameStore = create<GameState>()(
   },
 
   finishMission: () => {
-    const mission = MISSIONS.find((m) => m.id === get().currentMissionId);
-    if (!mission) return;
+    const mission = getMissionById(get().currentMissionId);
     get().addXP(mission.xpOnComplete);
     get().earnBadge(mission.badgeOnComplete);
     set({ missionPhase: "complete" });

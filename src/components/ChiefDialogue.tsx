@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useKeyedState } from "@/hooks/useKeyedState";
 import { playSound } from "@/lib/sound";
 
 interface ChiefDialogueProps {
@@ -14,28 +15,15 @@ const TYPE_SPEED_MS = 16;
 
 export default function ChiefDialogue({ lines, onComplete, continueLabel = "Continue" }: ChiefDialogueProps) {
   const linesKey = lines.join("|");
-  const [lineIndex, setLineIndex] = useState(0);
-  const [trackedLinesKey, setTrackedLinesKey] = useState(linesKey);
-
-  if (linesKey !== trackedLinesKey) {
-    setTrackedLinesKey(linesKey);
-    setLineIndex(0);
-  }
+  const [lineIndex, setLineIndex] = useKeyedState(linesKey, () => 0);
 
   const currentLine = lines[lineIndex] ?? "";
   const isLastLine = lineIndex === lines.length - 1;
   const stepKey = `${linesKey}::${lineIndex}`;
 
-  const [displayed, setDisplayed] = useState("");
-  const [typing, setTyping] = useState(true);
-  const [trackedStepKey, setTrackedStepKey] = useState(stepKey);
+  const [displayed, setDisplayed] = useKeyedState(stepKey, () => "");
+  const [typing, setTyping] = useKeyedState(stepKey, () => true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  if (stepKey !== trackedStepKey) {
-    setTrackedStepKey(stepKey);
-    setDisplayed("");
-    setTyping(true);
-  }
 
   useEffect(() => {
     let i = 0;

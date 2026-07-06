@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useGameStore } from "@/store/gameStore";
-import { MISSIONS } from "@/lib/missions";
+import { getMissionById } from "@/lib/missions";
 import { runQuery, warmDb } from "@/lib/duckdb";
 import { useDbStatus } from "@/hooks/useDbStatus";
+import { useKeyedState } from "@/hooks/useKeyedState";
 import { playSound } from "@/lib/sound";
-import { pickFillerLine, maybePickReflectionLine } from "@/lib/dialogue";
+import { nextFillerLine, nextReflectionLine } from "@/lib/dialogue";
 import { CLUE_CATALOG } from "@/lib/clues";
 import ChiefDialogue from "./ChiefDialogue";
 import CurrentMissionCard from "./CurrentMissionCard";
@@ -35,7 +36,7 @@ export default function GameShell() {
   const recordWrongAttempt = useGameStore((s) => s.recordWrongAttempt);
   const lastXpBreakdown = useGameStore((s) => s.lastXpBreakdown);
 
-  const mission = MISSIONS.find((m) => m.id === currentMissionId) ?? MISSIONS[0];
+  const mission = getMissionById(currentMissionId);
   const task = mission.tasks[currentTaskIndex];
 
   const dbStatus = useDbStatus();
@@ -59,36 +60,26 @@ export default function GameShell() {
   // message should only reset when a genuinely new task begins, not when
   // moving from task-active into task-review for the same query.
   const taskKey = String(currentTaskIndex);
-  const [trackedTaskKey, setTrackedTaskKey] = useState(taskKey);
-  const [sqlValue, setSqlValue] = useState(task?.starterSql ?? "");
+  const [sqlValue, setSqlValue] = useKeyedState(taskKey, () => task?.starterSql ?? "");
+  const [validationMessage, setValidationMessage] = useKeyedState<string | null>(
+    taskKey,
+    () => null
+  );
   const [running, setRunning] = useState(false);
-  const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
   // Picked once per task-success entry so Marlowe opens with a fresh reaction
-  // instead of jumping straight into the case-specific line.
-  const [successFillerKey, setSuccessFillerKey] = useState(stepKey);
-  const [successFiller, setSuccessFiller] = useState("");
+  // instead of jumping straight into the case-specific line. The keyed init
+  // runs on every phase change but only draws a line when entering the phase
+  // that shows it; the no-repeat memory lives in dialogue.ts.
+  const [successFiller] = useKeyedState(stepKey, () =>
+    missionPhase === "task-success" ? nextFillerLine() : ""
+  );
 
   // Picked once per task-review entry — Marlowe only occasionally chimes in
   // while the player is looking over the evidence, so this can be null.
-  const [reviewLineKey, setReviewLineKey] = useState(stepKey);
-  const [reviewLine, setReviewLine] = useState<string | null>(null);
-
-  if (taskKey !== trackedTaskKey) {
-    setTrackedTaskKey(taskKey);
-    setSqlValue(task?.starterSql ?? "");
-    setValidationMessage(null);
-  }
-
-  if (missionPhase === "task-success" && stepKey !== successFillerKey) {
-    setSuccessFillerKey(stepKey);
-    setSuccessFiller(pickFillerLine(successFiller || undefined));
-  }
-
-  if (missionPhase === "task-review" && stepKey !== reviewLineKey) {
-    setReviewLineKey(stepKey);
-    setReviewLine(maybePickReflectionLine(reviewLine ?? undefined));
-  }
+  const [reviewLine] = useKeyedState<string | null>(stepKey, () =>
+    missionPhase === "task-review" ? nextReflectionLine() : null
+  );
 
   async function handleRun() {
     playSound("queryRun");

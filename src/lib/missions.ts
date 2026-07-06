@@ -227,3 +227,8 @@ export const MISSION_1: Mission = {
 };
 
 export const MISSIONS: Mission[] = [MISSION_1];
+
+/** Looks up a mission by id, falling back to the first mission for unknown ids. */
+export function getMissionById(id: string): Mission {
+  return MISSIONS.find((m) => m.id === id) ?? MISSIONS[0];
+}

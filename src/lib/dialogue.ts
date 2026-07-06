@@ -59,3 +59,19 @@ export function maybePickReflectionLine(exclude?: string): string | null {
   if (Math.random() >= REFLECTION_CHANCE) return null;
   return pickReflectionLine(exclude);
 }
+
+// Stateful wrappers so callers don't have to thread "the line shown last
+// time" through their own state just to avoid an immediate repeat.
+let lastFillerLine: string | undefined;
+
+export function nextFillerLine(): string {
+  lastFillerLine = pickFillerLine(lastFillerLine);
+  return lastFillerLine;
+}
+
+let lastReflectionLine: string | null = null;
+
+export function nextReflectionLine(): string | null {
+  lastReflectionLine = maybePickReflectionLine(lastReflectionLine ?? undefined);
+  return lastReflectionLine;
+}
