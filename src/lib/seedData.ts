@@ -112,11 +112,10 @@ INSERT INTO guest_scans VALUES
   (1, 'Kai Rivera', '21:38:00', 'artist'),
   (2, 'Marisol Diaz', '21:45:00', 'staff'),
   (3, 'Owen Pratt', '21:50:00', 'staff'),
-  (4, 'Kai Rivera', '21:40:00', 'artist'),
-  (5, 'Theo Banks', '21:52:00', 'staff'),
-  (6, 'Nadia Cho', '22:05:00', 'guest'),
-  (7, 'Renn Okafor', '22:10:00', 'staff'),
-  (8, 'Priya Sharma', '22:15:00', 'guest');
+  (4, 'Theo Banks', '21:52:00', 'staff'),
+  (5, 'Nadia Cho', '22:05:00', 'guest'),
+  (6, 'Renn Okafor', '22:10:00', 'staff'),
+  (7, 'Priya Sharma', '22:15:00', 'guest');
 `;
 
 export const SEED_STAFF_SHIFTS_SQL = `
