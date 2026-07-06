@@ -332,7 +332,7 @@ export const MISSION_2: Mission = {
         "\"Join the records and see if that timeline holds up.\"",
       ],
       detectiveQuestion: "When did the rideshare actually pick up Kai?",
-      objective: "Join guest_scans to rideshare_pickups to find when Kai's rideshare actually picked him up.",
+      objective: "Join guest_scans to rideshare_pickups to find Kai's actual pickup time and test Marisol's claim that it was at 10:15.",
       chiefLine:
         "Staff say Kai left in a rideshare at 10:15. Join the guest scans to the rideshare pickups and see if that timeline holds up.",
       evidenceAvailable: "Rideshare Logs",
@@ -351,11 +351,11 @@ export const MISSION_2: Mission = {
       ],
       chiefReaction: {
         clean:
-          "The rideshare pulled up at 10:52, not 10:15. Whoever told you 10:15 was either wrong, or hoping you wouldn't check.",
+          "The rideshare picked up Kai at 10:52. Marisol said 10:15. That's a thirty-seven minute gap. Either she's wrong, or she's lying.",
         standard:
-          "The rideshare pulled up at 10:52, not 10:15. Whoever told you 10:15 was either wrong, or hoping you wouldn't check.",
+          "The rideshare pulled up at 10:52. Marisol claimed 10:15. That's thirty-seven minutes unaccounted for.",
         bruteForce:
-          "Took a few tries, but you found it: the rideshare pulled up at 10:52, not 10:15. That thirty-seven minutes is the whole case.",
+          "There it is: 10:52, not 10:15 like Marisol said. Thirty-seven minutes. That's going to matter.",
       },
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };
