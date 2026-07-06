@@ -447,13 +447,19 @@ export const MISSION_2: Mission = {
       },
       validate: (sql: string, result: QueryResult) => {
         if (result.error) return { success: false, message: result.error };
-        if (!sqlHas(sql, /join/i) && !sqlHas(sql, /where/i)) {
-          return { success: false, message: "Cross-reference the staff statements against the actual timeline." };
+        if (!sqlHas(sql, /staff_shifts/i) || !sqlHas(sql, /rideshare_pickups/i)) {
+          return {
+            success: false,
+            message: "Cross-reference the staff statements against the actual rideshare pickups — you need both tables.",
+          };
+        }
+        if (!sqlHas(sql, /join/i)) {
+          return { success: false, message: "Join the two tables together to compare them." };
         }
         if (result.rowCount !== 1) {
           return {
             success: false,
-            message: `Expected to identify 1 suspect, but got ${result.rowCount} records. Check your logic.`,
+            message: `Expected to identify exactly 1 suspect, but got ${result.rowCount}.`,
           };
         }
         return { success: true };
