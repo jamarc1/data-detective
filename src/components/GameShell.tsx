@@ -13,6 +13,9 @@ import { CLUE_CATALOG } from "@/lib/clues";
 import { TABLE_SCHEMAS } from "@/lib/seedData";
 import ChiefDialogue from "./ChiefDialogue";
 import CurrentMissionCard from "./CurrentMissionCard";
+import ConceptTutorial from "./ConceptTutorial";
+import SqlReference from "./SqlReference";
+import ChiefErrorMessage from "./ChiefErrorMessage";
 import WitnessFile from "./WitnessFile";
 import ChiefReactionDisplay from "./ChiefReactionDisplay";
 import SqlEditor from "./SqlEditor";
@@ -56,6 +59,11 @@ export default function GameShell() {
   useEffect(() => {
     warmDb();
   }, []);
+
+  // Reset concept tutorial flag when task changes
+  useEffect(() => {
+    setShownConceptTutorial(false);
+  }, [currentTaskIndex]);
 
   // Move focus to the heading of each newly rendered screen so keyboard and
   // screen-reader users land on the new context. task-active <-> task-review
@@ -107,6 +115,9 @@ export default function GameShell() {
   const [reviewLine] = useKeyedState<string | null>(stepKey, () =>
     missionPhase === "task-review" ? nextReflectionLine() : null
   );
+
+  // Track if we've shown the concept tutorial for this task
+  const [shownConceptTutorial, setShownConceptTutorial] = useState(false);
 
   async function handleRun() {
     playSound("queryRun");
@@ -233,6 +244,17 @@ export default function GameShell() {
 
   return (
     <div className="flex min-h-screen w-full flex-col gap-4 bg-[#05070d] p-4 sm:p-6">
+      {/* Concept Tutorial Overlay */}
+      {missionPhase === "task-active" &&
+        !shownConceptTutorial &&
+        task?.conceptExplainer && (
+          <ConceptTutorial
+            task={task}
+            onContinue={() => setShownConceptTutorial(true)}
+            onSkip={() => setShownConceptTutorial(true)}
+          />
+        )}
+
       <header className="noir-panel flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-noir text-xs uppercase tracking-widest text-foreground/40">
@@ -258,9 +280,15 @@ export default function GameShell() {
         />
       </div>
 
-      <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} />
+      {/* Three-column layout: Current Lead | Editor | SQL Reference */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        {/* Left sidebar: Current Lead */}
+        <div className="lg:col-span-3">
+          <CurrentMissionCard task={task} onInsertAnswer={setSqlValue} />
+        </div>
 
-      <div className="flex flex-col gap-4">
+        {/* Center: Editor & Results */}
+        <div className="lg:col-span-6 flex flex-col gap-4">
         {dbStatus === "loading" && (
           <p className="noir-panel rounded-md px-3 py-2 text-sm text-accent-soft/80">
             <span className="mr-2 inline-block animate-pulse text-accent">●</span>
@@ -279,16 +307,7 @@ export default function GameShell() {
           </p>
         )}
         <SqlEditor value={sqlValue} onChange={setSqlValue} onRun={handleRun} running={running} columns={availableColumns} />
-        {validationMessage && (
-          <motion.p
-            role="alert"
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-md border border-danger/50 bg-danger/10 px-3 py-2 text-sm text-danger"
-          >
-            {validationMessage}
-          </motion.p>
-        )}
+        {validationMessage && <ChiefErrorMessage error={validationMessage} />}
         {missionPhase === "task-review" && reviewLine && (
           <motion.p
             initial={{ opacity: 0, y: -6 }}
@@ -315,6 +334,12 @@ export default function GameShell() {
             Continue Investigation ▸
           </motion.button>
         )}
+        </div>
+
+        {/* Right sidebar: SQL Reference (hidden on mobile) */}
+        <div className="hidden lg:col-span-3 lg:flex lg:flex-col">
+          <SqlReference />
+        </div>
       </div>
 
       <WitnessFile />

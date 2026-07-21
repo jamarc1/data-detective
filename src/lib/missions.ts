@@ -50,7 +50,7 @@ export const MISSION_1: Mission = {
         "\"Pull the case archive.\"",
       ],
       detectiveQuestion: "Which investigation is still active?",
-      objective: "Pull all cases from the crimes table to identify which investigations are still open.",
+      objective: "Pull the case archive to identify which investigations are still open.",
       chiefLine:
         "Three investigations are sitting in our archive. Two have been closed. One is still costing this department time and money. Find it before we waste another day chasing ghosts.",
       evidenceAvailable: "Case Archive",
@@ -143,6 +143,13 @@ export const MISSION_1: Mission = {
       chiefIntro: ["\"Who stands out? Security already flagged a few.\""],
       detectiveQuestion: "Who deserves a closer look?",
       objective: "Filter the guest list to show only those marked suspicious by security.",
+      conceptExplainer: {
+        briefing: [
+          "\"Not everyone at a crime scene matters. You need to filter. Here's how WHERE works — it's like telling the database 'I only want rows that match this condition.'\"",
+          "\"You'll use WHERE to find the people flagged by security. Let me show you.\"",
+        ],
+        exampleSql: "SELECT * FROM people\nWHERE suspicious = true;",
+      },
       chiefLine: "Not everyone at the gala matters. Find the ones marked suspicious.",
       evidenceAvailable: "Guest List",
       instructions: "Find the suspicious guests.",
@@ -194,6 +201,13 @@ export const MISSION_1: Mission = {
       chiefIntro: ["\"Witnesses lie about time. Databases don't. Rebuild the timeline.\""],
       detectiveQuestion: "Who was seen last?",
       objective: "Sort guests by last_seen_time to see the order they left the building.",
+      conceptExplainer: {
+        briefing: [
+          "\"ORDER BY is how you sort results. You can go ascending (smallest to largest) or descending (largest to smallest). Here's an example — sorting everyone by when they were seen.\"",
+          "\"This is how we catch liars. We build a timeline and see who doesn't match their alibi.\"",
+        ],
+        exampleSql: "SELECT * FROM people\nORDER BY last_seen_time DESC;",
+      },
       chiefLine: "Witnesses lie about time. Databases don't. Rebuild the timeline.",
       evidenceAvailable: "Guest Timeline",
       instructions: "Rebuild the timeline.",
@@ -333,6 +347,13 @@ export const MISSION_2: Mission = {
       ],
       detectiveQuestion: "When did the rideshare actually pick up Kai?",
       objective: "Join guest_scans to rideshare_pickups to find Kai's actual pickup time and test Marisol's claim that it was at 10:15.",
+      conceptExplainer: {
+        briefing: [
+          "\"JOIN is how you connect two tables. You match them on a shared column — a key that appears in both tables. In this case, we're matching guest names to passenger names.\"",
+          "\"Watch: we take the guest scans and match them against the rideshare pickups. This shows us who left in what vehicle, and when.\"",
+        ],
+        exampleSql: "SELECT g.*, r.pickup_time\nFROM guest_scans g\nJOIN rideshare_pickups r\n  ON g.guest_name = r.passenger_name\nWHERE g.guest_name = 'Kai Rivera';",
+      },
       chiefLine:
         "Staff say Kai left in a rideshare at 10:15. Join the guest scans to the rideshare pickups and see if that timeline holds up.",
       evidenceAvailable: "Rideshare Logs",

@@ -62,16 +62,13 @@ export default function SqlEditor({ value, onChange, onRun, running, columns = [
         className="w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-3 font-mono text-sm text-yellow-400 outline-none focus:border-blue-400"
         placeholder="-- Write a SQL query to identify the active investigation."
       />
-      <div className="mt-2 flex gap-2 justify-between">
+      <div className="mt-2">
         <button
           onClick={onRun}
           disabled={running}
-          className="flex-1 rounded-md bg-accent px-5 py-2 font-noir text-sm text-slate-900 transition hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-md bg-accent px-5 py-2 font-noir text-sm text-slate-900 transition hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-50"
         >
           {running ? "Running..." : "Run Query ▸"}
-        </button>
-        <button className="px-3 py-2 rounded-md border border-accent-soft/40 font-mono text-xs text-accent-soft transition hover:bg-accent-soft/10">
-          Hint
         </button>
       </div>
     </div>

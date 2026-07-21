@@ -34,6 +34,11 @@ export interface MissionTask {
   detectiveQuestion: string;
   /** Concrete actionable objective, shown above the SQL editor. Plain English, no SQL syntax. */
   objective: string;
+  /** Optional: A concept tutorial shown before this task if it introduces a new SQL concept. */
+  conceptExplainer?: {
+    briefing: string[];
+    exampleSql: string;
+  };
   /** Short in-character Marlowe line shown on the Current Lead card. */
   chiefLine: string;
   /** Short label for what evidence this challenge unlocks, e.g. "Case Archive". */
