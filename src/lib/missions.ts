@@ -415,7 +415,6 @@ export const MISSION_2: Mission = {
         data: "Join them all on matching names, then sort by time to see the sequence.",
         sql: "SELECT * FROM guest_scans\nUNION ALL SELECT * FROM staff_shifts\nUNION ALL SELECT * FROM rideshare_pickups\nORDER BY time;",
       },
-      badgeId: null,
       clueId: "clue-timeline-reconstructed",
       successDialogue: [
         "\"There's the gap.\"",
